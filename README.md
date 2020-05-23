@@ -15,9 +15,8 @@ Add maven dependency
     <version>0.1.0</version>
 </dependency>
 ```
-
-With a static java method and `@LogParam` annotation could you define 
-the log parameter. 
+The standard log method for each parameter is the `toString()` Java method.
+You can overwrite this and define a static Java method with annotation `@LogParam`. 
 ```java
     @LogParam(classes = {Transaction.class}, priority = 100)
     public static String logMessage(Object message) {
