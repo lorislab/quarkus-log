@@ -17,6 +17,7 @@ package org.lorislab.quarkus.log.rs;
 
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
+import io.quarkus.deployment.builditem.CapabilityBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 
 public class RsLogProcessor {
@@ -24,8 +25,8 @@ public class RsLogProcessor {
     static final String FEATURE_NAME = "rs-log";
 
     @BuildStep
-    FeatureBuildItem createFeatureItem() {
-        return new FeatureBuildItem(FEATURE_NAME);
+    CapabilityBuildItem capability() {
+        return new CapabilityBuildItem(FEATURE_NAME);
     }
 
     @BuildStep

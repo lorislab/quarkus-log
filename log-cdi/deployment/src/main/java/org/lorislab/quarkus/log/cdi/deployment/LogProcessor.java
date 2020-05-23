@@ -23,6 +23,7 @@ import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
+import io.quarkus.deployment.builditem.CapabilityBuildItem;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import org.jboss.jandex.*;
@@ -61,8 +62,8 @@ public class LogProcessor {
     LogBuildTimeConfig buildConfig;
 
     @BuildStep
-    FeatureBuildItem createFeatureItem() {
-        return new FeatureBuildItem(FEATURE_NAME);
+    CapabilityBuildItem capability() {
+        return new CapabilityBuildItem(FEATURE_NAME);
     }
 
     @BuildStep
