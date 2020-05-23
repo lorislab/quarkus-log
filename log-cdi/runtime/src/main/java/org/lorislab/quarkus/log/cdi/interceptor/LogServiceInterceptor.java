@@ -75,33 +75,7 @@ public class LogServiceInterceptor {
 
             try {
                 result = ic.proceed();
-
-                if (result instanceof CompletionStage) {
-                    logger.info("{}", LogConfig.msgFutureStart(context));
-
-                    CompletionStage<?> cs = (CompletionStage<?>) result;
-                    cs.toCompletableFuture().whenComplete((u, eex) -> {
-                        if (eex != null) {
-                            handleException(context, logger, ano, (Throwable) eex);
-                        } else {
-                            String contextResult = LogConfig.RESULT_VOID;
-                            if (u != Void.TYPE) {
-                                contextResult = getValue(u);
-                            }
-                            context.closeContext(contextResult);
-                            // log the success message
-                            logger.info("{}", LogConfig.msgSucceed(context));
-                        }
-                    });
-                } else {
-                    String contextResult = LogConfig.RESULT_VOID;
-                    if (method.getReturnType() != Void.TYPE) {
-                        contextResult = getValue(result);
-                    }
-                    context.closeContext(contextResult);
-                    // log the success message
-                    logger.info("{}", LogConfig.msgSucceed(context));
-                }
+                handleResult(logger, context, ano, method.getReturnType(), result);
             } catch (InvocationTargetException ie) {
                 handleException(context, logger, ano, ie.getCause());
                 throw ie;
@@ -113,6 +87,35 @@ public class LogServiceInterceptor {
             result = ic.proceed();
         }
         return result;
+    }
+
+    private void handleResult(Logger logger, InterceptorContext context, LogService ano, Class<?> type, Object result) {
+        if (result instanceof CompletionStage) {
+            logger.info("{}", LogConfig.msgFutureStart(context));
+
+            CompletionStage<?> cs = (CompletionStage<?>) result;
+            cs.toCompletableFuture().whenComplete((u, eex) -> {
+                if (eex != null) {
+                    handleException(context, logger, ano, eex);
+                } else {
+                    String contextResult = LogConfig.RESULT_VOID;
+                    if (u != Void.TYPE) {
+                        contextResult = getValue(u);
+                    }
+                    context.closeContext(contextResult);
+                    // log the success message
+                    logger.info("{}", LogConfig.msgSucceed(context));
+                }
+            });
+        } else {
+            String contextResult = LogConfig.RESULT_VOID;
+            if (type != Void.TYPE) {
+                contextResult = getValue(result);
+            }
+            context.closeContext(contextResult);
+            // log the success message
+            logger.info("{}", LogConfig.msgSucceed(context));
+        }
     }
 
     /**
