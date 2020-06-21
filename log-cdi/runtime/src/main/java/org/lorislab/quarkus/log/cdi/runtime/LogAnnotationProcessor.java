@@ -54,18 +54,8 @@ public class LogAnnotationProcessor extends AbstractProcessor {
 
     @Override
     public SourceVersion getSupportedSourceVersion() {
-        return SourceVersion.RELEASE_8;
+        return SourceVersion.latestSupported();
     }
-
-//    private void writeImplClass(TypeElement element) {
-//        try {
-//            ClassInfo clazzInfo = ClassInfo.build(element);
-//            SqlMapperImpClassWriter.createMapper(processingEnv, clazzInfo);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            messager().printMessage(Diagnostic.Kind.ERROR, "Writing SqlMapper implementation class failed", element);
-//        }
-//    }
 
     private Messager messager() {
         return processingEnv.getMessager();
