@@ -53,11 +53,11 @@ public class LogConfig {
 
     static {
         Config config = ConfigProvider.getConfig();
-        RESULT_VOID = config.getOptionalValue("org.lorislab.quarkus.log.result.void", String.class).orElse("void");
-        messageStart = new MessageFormat(config.getOptionalValue("org.lorislab.quarkus.log.start", String.class).orElse("{0}({1}) started."));
-        messageSucceed = new MessageFormat(config.getOptionalValue("org.lorislab.quarkus.log.succeed", String.class).orElse("{0}({1}):{2} [{3}s] succeed."));
-        messageFailed = new MessageFormat(config.getOptionalValue("org.lorislab.quarkus.log.failed", String.class).orElse("{0}({1}):{2} [{3}s] failed."));
-        messageFutureStart = new MessageFormat(config.getOptionalValue("org.lorislab.quarkus.log.futureStart", String.class).orElse("{0}({1}) future started."));
+        RESULT_VOID = config.getOptionalValue("lorislab.log.result.void", String.class).orElse("void");
+        messageStart = new MessageFormat(config.getOptionalValue("lorislab.log.start", String.class).orElse("{0}({1}) started."));
+        messageSucceed = new MessageFormat(config.getOptionalValue("lorislab.log.succeed", String.class).orElse("{0}({1}):{2} [{3}s] succeed."));
+        messageFailed = new MessageFormat(config.getOptionalValue("lorislab.log.failed", String.class).orElse("{0}({1}):{2} [{3}s] failed."));
+        messageFutureStart = new MessageFormat(config.getOptionalValue("lorislab.log.futureStart", String.class).orElse("{0}({1}) future started."));
     }
 
     /**

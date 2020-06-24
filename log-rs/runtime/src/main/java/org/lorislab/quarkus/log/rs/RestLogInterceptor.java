@@ -37,6 +37,8 @@ import java.text.MessageFormat;
 @LogService(log = false)
 public class RestLogInterceptor implements ContainerRequestFilter, ContainerResponseFilter {
 
+    static final String PROP_DISABLE_PROTECTED_METHODS = "lorislab.log.protected.disable";
+
     /**
      * The annotation interceptor property.
      */
@@ -59,8 +61,8 @@ public class RestLogInterceptor implements ContainerRequestFilter, ContainerResp
 
     static {
         Config config = ConfigProvider.getConfig();
-        messageStart = new MessageFormat(config.getOptionalValue("org.lorislab.jel.logger.rs.start", String.class).orElse("{0} {1} [{2}] started."));
-        messageSucceed = new MessageFormat(config.getOptionalValue("org.lorislab.jel.logger.rs.succeed", String.class).orElse("{0} {1} [{2}s] finished [{3}-{4},{5}]."));
+        messageStart = new MessageFormat(config.getOptionalValue("lorislab.log.rs.start", String.class).orElse("{0} {1} [{2}] started."));
+        messageSucceed = new MessageFormat(config.getOptionalValue("lorislab.log.rs.succeed", String.class).orElse("{0} {1} [{2}s] finished [{3}-{4},{5}]."));
     }
 
     /**
@@ -73,8 +75,12 @@ public class RestLogInterceptor implements ContainerRequestFilter, ContainerResp
      * The rest logger interceptor disable flag.
      */
     @Inject
-    @ConfigProperty(name = "org.lorislab.jel.logger.rs.disable", defaultValue = "false")
+    @ConfigProperty(name = "lorislab.log.rs.disable", defaultValue = "false")
     private boolean disable;
+
+    @Inject
+    @ConfigProperty(name = PROP_DISABLE_PROTECTED_METHODS, defaultValue = "true")
+    boolean disableProtectedMethod;
 
     /**
      * {@inheritDoc }
@@ -84,7 +90,7 @@ public class RestLogInterceptor implements ContainerRequestFilter, ContainerResp
         if (disable) {
             return;
         }
-        LogService ano = LogServiceInterceptor.getLoggerServiceAno(resourceInfo.getResourceClass(), resourceInfo.getResourceClass().getName(), resourceInfo.getResourceMethod());
+        LogService ano = LogServiceInterceptor.getLoggerServiceAno(resourceInfo.getResourceClass(), resourceInfo.getResourceClass().getName(), resourceInfo.getResourceMethod(), disableProtectedMethod);
         requestContext.setProperty(ANO, ano);
 
         if (ano.log()) {

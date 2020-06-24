@@ -17,6 +17,7 @@ package org.lorislab.quarkus.log.cdi.interceptor;
 
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.lorislab.quarkus.log.cdi.LogExclude;
 import org.lorislab.quarkus.log.cdi.LogService;
 import org.slf4j.Logger;
@@ -28,10 +29,7 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.lang.reflect.Proxy;
+import java.lang.reflect.*;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
@@ -45,11 +43,21 @@ import java.util.concurrent.CompletionStage;
 @Priority(Interceptor.Priority.PLATFORM_BEFORE)
 public class LogServiceInterceptor {
 
+    static final String PROP_DISABLE_PROTECTED_METHODS = "lorislab.log.protected.disable";
+
     /**
      * The logger builder service.
      */
     @Inject
     LogParamValueService logParamService;
+
+    /**
+     * Disable the protected methods to log.
+     */
+    @Inject
+    @ConfigProperty(name = PROP_DISABLE_PROTECTED_METHODS, defaultValue = "true")
+    boolean disableProtectedMethod;
+
 
     /**
      * The method execution.
@@ -64,7 +72,7 @@ public class LogServiceInterceptor {
         Method method = ic.getMethod();
         String className = getObjectClassName(ic.getTarget());
 
-        LogService ano = getLoggerServiceAno(ic.getTarget().getClass(), className, method);
+        LogService ano = getLoggerServiceAno(ic.getTarget().getClass(), className, method, disableProtectedMethod);
         if (ano.log()) {
 
             Logger logger = LoggerFactory.getLogger(className);
@@ -174,11 +182,15 @@ public class LogServiceInterceptor {
      * @param method the method.
      * @return the logger service annotation.
      */
-    public static LogService getLoggerServiceAno(Class<?> clazz, String className, Method method) {
+    public static LogService getLoggerServiceAno(Class<?> clazz, String className, Method method, boolean disableProtectedMethod) {
+
+        if (disableProtectedMethod && Modifier.isProtected(method.getModifiers())) {
+            return createLoggerService(false, false);
+        }
 
         Config config = ConfigProvider.getConfig();
-        String mc = className + "." + method.getName() + "/jel-log/";
-        String c = className + "/jel-log/";
+        String mc = className + "." + method.getName() + "/lorislab/";
+        String c = className + "/lorislab/";
 
         Optional<Boolean> log = config.getOptionalValue(mc + "log", Boolean.class);
         Optional<Boolean> trace = config.getOptionalValue(mc + "trace", Boolean.class);
