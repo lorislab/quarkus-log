@@ -39,16 +39,16 @@ public class LogParamValueService {
     /**
      * Gets the map of the mapping function for the class.
      */
-    public static Map<Class<?>, Function<Object, String>> INSTANCE_OF = new ConcurrentHashMap<>(JavaTypesLogParamValue.classes());
+    static Map<Class<?>, Function<Object, String>> INSTANCE_OF = new ConcurrentHashMap<>(JavaTypesLogParamValue.classes());
 
     /**
      * Gets the map of the mapping function for the assignable class.
      */
-    public static Map<Class<?>, Function<Object, String>> ASSIGNABLE_FROM = new HashMap<>(JavaTypesLogParamValue.assignableFrom());
+    static Map<Class<?>, Function<Object, String>> ASSIGNABLE_FROM = new HashMap<>(JavaTypesLogParamValue.assignableFrom());
 
-    public static Map<Class<?>, BiFunction<ReturnContext, Object, Object>> RETURN_TYPES = new HashMap<>();
+    static Map<Class<?>, BiFunction<ReturnContext, Object, Object>> RETURN_TYPES = new HashMap<>();
 
-    public static Map<Class<?>, BiFunction<ReturnContext, Object, Object>> RETURN_ASSIGNABLE_TYPES = new HashMap<>();
+    static Map<Class<?>, BiFunction<ReturnContext, Object, Object>> RETURN_ASSIGNABLE_TYPES = new HashMap<>();
 
     @Inject
     @Any

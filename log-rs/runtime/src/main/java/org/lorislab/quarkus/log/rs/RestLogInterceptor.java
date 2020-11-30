@@ -15,29 +15,22 @@
  */
 package org.lorislab.quarkus.log.rs;
 
-import org.eclipse.microprofile.config.Config;
-import org.eclipse.microprofile.config.ConfigProvider;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.lorislab.quarkus.log.cdi.interceptor.InterceptorContext;
-import org.lorislab.quarkus.log.cdi.interceptor.LogConfig;
 import org.lorislab.quarkus.log.cdi.LogService;
+import org.lorislab.quarkus.log.cdi.interceptor.LogConfig;
 import org.lorislab.quarkus.log.cdi.interceptor.LogServiceInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import javax.ws.rs.container.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.text.MessageFormat;
 
 /**
  * The rest log interceptor.
  */
-@LogService(log = false)
+@LogService(disabled = true)
 public class RestLogInterceptor implements ContainerRequestFilter, ContainerResponseFilter {
-
-    static final String PROP_DISABLE_PROTECTED_METHODS = "lorislab.log.protected.disable";
 
     /**
      * The annotation interceptor property.
@@ -50,53 +43,29 @@ public class RestLogInterceptor implements ContainerRequestFilter, ContainerResp
     private static final String CONTEXT = "context";
 
     /**
-     * The message start.
-     */
-    private static MessageFormat messageStart;
-
-    /**
-     * The message succeed.
-     */
-    private static MessageFormat messageSucceed;
-
-    static {
-        Config config = ConfigProvider.getConfig();
-        messageStart = new MessageFormat(config.getOptionalValue("lorislab.log.rs.start", String.class).orElse("{0} {1} [{2}] started."));
-        messageSucceed = new MessageFormat(config.getOptionalValue("lorislab.log.rs.succeed", String.class).orElse("{0} {1} [{2}s] finished [{3}-{4},{5}]."));
-    }
-
-    /**
      * The resource info.
      */
     @Context
     ResourceInfo resourceInfo;
 
     /**
-     * The rest logger interceptor disable flag.
-     */
-    @Inject
-    @ConfigProperty(name = "lorislab.log.rs.disable", defaultValue = "false")
-    boolean disable;
-
-    /**
      * {@inheritDoc }
      */
     @Override
     public void filter(ContainerRequestContext requestContext) {
-        if (disable) {
+        if (!RestLogConfig.endpoint().enabled) {
             return;
         }
         LogService ano = LogServiceInterceptor.getLoggerServiceAno(resourceInfo.getResourceClass(), resourceInfo.getResourceClass().getName(), resourceInfo.getResourceMethod());
         requestContext.setProperty(ANO, ano);
-
-        if (ano.log()) {
-            InterceptorContext context = new InterceptorContext(requestContext.getMethod(), requestContext.getUriInfo().getRequestUri().toString());
-            requestContext.setProperty(CONTEXT, context);
-
-            // create the logger
-            Logger logger = LoggerFactory.getLogger(resourceInfo.getResourceClass());
-            logger.info("{}", LogConfig.msg(messageStart, new Object[]{context.method, requestContext.getUriInfo().getRequestUri(), requestContext.hasEntity()}));
+        if (ano.disabled()) {
+            return;
         }
+        InterceptorContext context = new InterceptorContext(requestContext.getMethod(), requestContext.getUriInfo().getRequestUri().toString());
+        requestContext.setProperty(CONTEXT, context);
+        // create the logger
+        Logger logger = LoggerFactory.getLogger(resourceInfo.getResourceClass());
+        logger.info("{}", LogConfig.msg(RestLogConfig.endpoint().msgStart, new Object[]{context.method, requestContext.getUriInfo().getRequestUri(), requestContext.hasEntity()}));
     }
 
     /**
@@ -104,25 +73,26 @@ public class RestLogInterceptor implements ContainerRequestFilter, ContainerResp
      */
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
-        if (disable) {
+        if (!RestLogConfig.endpoint().enabled) {
             return;
         }
         LogService ano = (LogService) requestContext.getProperty(ANO);
-        if (ano != null && ano.log()) {
-            InterceptorContext context = (InterceptorContext) requestContext.getProperty(CONTEXT);
-            Response.StatusType status = responseContext.getStatusInfo();
-            context.closeContext(status.getReasonPhrase());
-            Logger logger = LoggerFactory.getLogger(resourceInfo.getResourceClass());
-            logger.info("{}", LogConfig.msg(messageSucceed,
-                    new Object[]{
-                            context.method,
-                            context.parameters,
-                            context.time,
-                            status.getStatusCode(),
-                            status.getReasonPhrase(),
-                            responseContext.hasEntity()
-                    }));
+        if (ano == null || ano.disabled()) {
+            return;
         }
+        InterceptorContext context = (InterceptorContext) requestContext.getProperty(CONTEXT);
+        Response.StatusType status = responseContext.getStatusInfo();
+        context.closeContext(status.getReasonPhrase());
+        Logger logger = LoggerFactory.getLogger(resourceInfo.getResourceClass());
+        logger.info("{}", LogConfig.msg(RestLogConfig.endpoint().msgSucceed,
+                new Object[]{
+                        context.method,
+                        context.parameters,
+                        context.time,
+                        status.getStatusCode(),
+                        status.getReasonPhrase(),
+                        responseContext.hasEntity()
+                }));
     }
 
 }

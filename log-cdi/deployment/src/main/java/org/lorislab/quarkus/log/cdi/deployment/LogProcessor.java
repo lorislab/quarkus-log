@@ -25,12 +25,10 @@ import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.CapabilityBuildItem;
-import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import org.jboss.jandex.*;
 import org.lorislab.quarkus.log.LogExclude;
 import org.lorislab.quarkus.log.cdi.LogService;
-import org.lorislab.quarkus.log.cdi.interceptor.LogConfig;
 import org.lorislab.quarkus.log.cdi.runtime.*;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -39,23 +37,15 @@ import javax.inject.Singleton;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-import static io.quarkus.deployment.annotations.ExecutionTime.STATIC_INIT;
-
 public class LogProcessor {
 
     static final String FEATURE_NAME = "cdi-log";
 
     private static final DotName EXCLUDE = DotName.createSimple(LogExclude.class.getName());
-
     private static final DotName LOG_SERVICE = DotName.createSimple(LogService.class.getName());
-
-    private static final List<DotName> ANNOTATION_DOT_NAMES = List.of(
-        DotName.createSimple(ApplicationScoped.class.getName()),
-        DotName.createSimple(Singleton.class.getName()),
-        DotName.createSimple(RequestScoped.class.getName())
-    );
-
-    LogBuildTimeConfig buildConfig;
+    private static final DotName APPLICATION_SCOPED = DotName.createSimple(ApplicationScoped.class.getName());
+    private static final DotName SINGLETON = DotName.createSimple(Singleton.class.getName());
+    private static final DotName REQUEST_SCOPED = DotName.createSimple(RequestScoped.class.getName());
 
     @BuildStep
     CapabilityBuildItem capability() {
@@ -64,38 +54,41 @@ public class LogProcessor {
 
     @BuildStep
     @Record(ExecutionTime.RUNTIME_INIT)
-    void configureRuntimeProperties(LogRecorder recorder,
+    void configureRuntimeProperties(LogRecorder recorder, LogBuildTimeConfig logBuildTimeConfig,
                                     LogRuntimeTimeConfig logRuntimeTimeConfig,
+                                    LogClassesConfigBuildItem logClassesConfigBuildItem,
                                     BeanContainerBuildItem beanContainer) {
-        recorder.config(logRuntimeTimeConfig);
-        BeanContainer container = beanContainer.getValue();
-        recorder.init(container);
+        if (logBuildTimeConfig.enabled) {
+            recorder.config(logRuntimeTimeConfig, logClassesConfigBuildItem.getClasses());
+            BeanContainer container = beanContainer.getValue();
+            recorder.init(container);
+        }
     }
 
     @BuildStep
-    @Record(STATIC_INIT)
-    void build(BuildProducer<FeatureBuildItem> feature, LogRecorder recorder,
-               LogClassesConfigBuildItem logClassesConfigBuildItem){
-        feature.produce(new FeatureBuildItem(FEATURE_NAME));
-        recorder.config(logClassesConfigBuildItem.getClasses());
+    public void capability(LogBuildTimeConfig buildTimeConfig,
+                           BuildProducer<CapabilityBuildItem> capability) {
+        if (buildTimeConfig.enabled) {
+            capability.produce(new CapabilityBuildItem(FEATURE_NAME));
+        }
     }
 
     @BuildStep
-    private LogClassesConfigBuildItem registerLogClassesConfig(BeanArchiveIndexBuildItem combinedIndexBuildItem) {
+    public FeatureBuildItem build() {
+        return new FeatureBuildItem(FEATURE_NAME);
+    }
 
+    @BuildStep
+    private LogClassesConfigBuildItem registerLogClassesConfig(LogBuildTimeConfig buildTimeConfig, BeanArchiveIndexBuildItem combinedIndexBuildItem) {
         Map<String, LogClassRuntimeConfig> classes = new HashMap<>();
-
         IndexView index = combinedIndexBuildItem.getIndex();
         for (ClassInfo ci : index.getKnownClasses()) {
-            Optional<AnnotationInstance> a = ci.classAnnotations().stream().filter(x -> ANNOTATION_DOT_NAMES.contains(x.name())).findFirst();
-            if (a.isPresent()) {
-                readClassInfo(index, ci, buildConfig.packages, classes);
+            boolean tmp = checkClass(ci);
+            if (tmp) {
+                readClassInfo(index, ci, buildTimeConfig.packages, classes);
             }
         }
 
-        classes.forEach((k,v) -> {
-            System.out.println(k + " -> " + v.log + " - " + v.stacktrace);
-        });
         return new LogClassesConfigBuildItem(classes);
     }
 
@@ -121,13 +114,12 @@ public class LogProcessor {
         }
 
         // check class methods
-        String className = ci.name().toString();
-        boolean findMethod = findMethods(index, ci, classConfig, className, classes);
+        boolean findMethod = findMethods(index, ci, classConfig, ci.name(), classes);
         DotName superClass = ci.superName();
         DotName objectClass = DotName.createSimple(Object.class.getName());
         while (superClass != null && !objectClass.equals(superClass)) {
             ClassInfo item = index.getClassByName(superClass);
-            findMethods(index, item, classConfig, className, classes);
+            findMethods(index, item, classConfig, ci.name(), classes);
             superClass = item.superName();
         }
 
@@ -136,29 +128,18 @@ public class LogProcessor {
         }
     }
 
-    private static boolean findMethods(IndexView index, ClassInfo clazz, LogClassRuntimeConfig classConfig, String className, Map<String, LogClassRuntimeConfig> classes) {
+    private static boolean findMethods(IndexView index, ClassInfo clazz, LogClassRuntimeConfig classConfig, DotName className, Map<String, LogClassRuntimeConfig> classes) {
         boolean findMethod = false;
         for (MethodInfo method : clazz.methods()) {
-
-            if (Modifier.isStatic(method.flags())) {
+            if (!checkMethod(method)) {
                 continue;
             }
-            if (!Modifier.isPublic(method.flags())) {
-                continue;
-            }
-            if ("<init>".equals(method.name())) {
-                continue;
-            }
-            if (method.annotation(EXCLUDE) != null) {
-                continue;
-            }
-
             AnnotationInstance ano = method.annotation(LOG_SERVICE);
             if (ano != null) {
                 LogClassRuntimeConfig methodConfig = create(index, ano);
-                classes.put(className + "." + method.name(), methodConfig);
+                classes.put(methodKey(className, method), methodConfig);
             } else {
-                classes.put(className + "." + method.name(), classConfig);
+                classes.put(methodKey(className, method), classConfig);
             }
             findMethod = true;
         }
@@ -169,8 +150,8 @@ public class LogProcessor {
         LogClassRuntimeConfig classConfig = LogClassRuntimeConfig.create();
         ano.valuesWithDefaults(index).forEach(a -> {
             switch (a.name()) {
-                case "log":
-                    classConfig.log = a.asBoolean();
+                case "disabled":
+                    classConfig.disabled = a.asBoolean();
                     break;
                 case "stacktrace":
                     classConfig.stacktrace = a.asBoolean();
@@ -189,27 +170,52 @@ public class LogProcessor {
 
             @Override
             public boolean appliesTo(AnnotationTarget.Kind kind) {
-                return !buildConfig.disable && kind == AnnotationTarget.Kind.METHOD;
+                return kind == AnnotationTarget.Kind.METHOD;
             }
 
             public void transform(TransformationContext context) {
                 MethodInfo mi = context.getTarget().asMethod();
-                if (Modifier.isStatic(mi.flags())) {
-                    return;
-                }
-                if (!Modifier.isPublic(mi.flags())) {
-                    return;
-                }
-                if (mi.annotation(EXCLUDE) != null) {
-                    return;
-                }
-                ClassInfo ci = mi.declaringClass();
-                if (logClassesConfigBuildItem.getClasses().containsKey(ci.name() + "." + mi.name())) {
-                    context.transform().add(LogService.class).done();
+                if (checkMethod(mi)) {
+                    ClassInfo ci = mi.declaringClass();
+                    if (logClassesConfigBuildItem.getClasses().containsKey(methodKey(ci.name(), mi))) {
+                        context.transform().add(LogService.class).done();
+                    }
                 }
             }
         }));
     }
 
+    private static String methodKey(DotName className, MethodInfo method) {
+        return className + "." + method.name();
+    }
+
+    private static boolean checkClass(ClassInfo classInfo) {
+        if (classInfo.classAnnotation(APPLICATION_SCOPED) != null) {
+            return true;
+        }
+        if (classInfo.classAnnotation(SINGLETON) != null) {
+            return true;
+        }
+        if (classInfo.classAnnotation(REQUEST_SCOPED) != null) {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean checkMethod(MethodInfo method) {
+        if (Modifier.isStatic(method.flags())) {
+            return false;
+        }
+        if (!Modifier.isPublic(method.flags())) {
+            return false;
+        }
+        if ("<init>".equals(method.name())) {
+            return false;
+        }
+        if (method.annotation(EXCLUDE) != null) {
+            return false;
+        }
+        return true;
+    }
 }
 

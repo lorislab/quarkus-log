@@ -30,11 +30,11 @@ import java.lang.annotation.*;
 public @interface LogService {
 
     /**
-     * Log the method or class if the flag is {@code true}.
+     * Log the method or class if the flag is disabled {@code false}.
      *
-     * @return the log flag.
+     * @return the log disabled flag.
      */
-    @Nonbinding boolean log() default true;
+    @Nonbinding boolean disabled() default false;
 
     /**
      * Log the exception stacktrace if the flag is {@code true}

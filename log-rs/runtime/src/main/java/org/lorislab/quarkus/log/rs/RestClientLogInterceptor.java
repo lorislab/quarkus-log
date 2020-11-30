@@ -37,7 +37,7 @@ import java.text.MessageFormat;
  *
  * @author Andrej Petras
  */
-@LogService(log = false)
+@LogService(disabled = true)
 public class RestClientLogInterceptor implements ClientRequestFilter, ClientResponseFilter {
 
     /**
@@ -67,23 +67,16 @@ public class RestClientLogInterceptor implements ClientRequestFilter, ClientResp
     }
 
     /**
-     * The rest client logger interceptor disable flag.
-     */
-    @Inject
-    @ConfigProperty(name = "org.lorislab.jel.logger.rs.client.disable", defaultValue = "false")
-    private boolean disable;
-
-    /**
      * {@inheritDoc }
      */
     @Override
     public void filter(ClientRequestContext requestContext) {
-        if (disable) {
+        if (!RestLogConfig.client().enabled) {
             return;
         }
         InterceptorContext context = new InterceptorContext(requestContext.getMethod(), requestContext.getUri().toString());
         requestContext.setProperty(CONTEXT, context);
-        log.info("{}", LogConfig.msg(messageStart, new Object[]{requestContext.getMethod(), requestContext.getUri(), requestContext.hasEntity()}));
+        log.info("{}", LogConfig.msg(RestLogConfig.client().msgStart, new Object[]{requestContext.getMethod(), requestContext.getUri(), requestContext.hasEntity()}));
     }
 
     /**
@@ -91,14 +84,14 @@ public class RestClientLogInterceptor implements ClientRequestFilter, ClientResp
      */
     @Override
     public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext) {
-        if (disable) {
+        if (!RestLogConfig.client().enabled) {
             return;
         }
         InterceptorContext context = (InterceptorContext) requestContext.getProperty(CONTEXT);
         if (context != null) {
             Response.StatusType status = responseContext.getStatusInfo();
             context.closeContext(status.getReasonPhrase());
-            log.info("{}", LogConfig.msg(messageSucceed, new Object[]{context.method, requestContext.getUri(), context.time, status.getStatusCode(), context.result, responseContext.hasEntity()}));
+            log.info("{}", LogConfig.msg(RestLogConfig.client().msgSucceed, new Object[]{context.method, requestContext.getUri(), context.time, status.getStatusCode(), context.result, responseContext.hasEntity()}));
         }
     }
 }

@@ -13,30 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.lorislab.quarkus.log.cdi.runtime;
+package org.lorislab.quarkus.log.rs;
 
 import io.quarkus.runtime.annotations.ConfigItem;
 import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
 
-import java.util.Collections;
-import java.util.Map;
-
 /**
  * Build configuration.
  */
-@ConfigRoot(name = "lorislab.log", phase = ConfigPhase.RUN_TIME)
-public class LogRuntimeTimeConfig {
+@ConfigRoot(name = "lorislab.log.rs", phase = ConfigPhase.RUN_TIME)
+public class RestLogRuntimeTimeConfig {
 
     /**
-     * Log class configuration
+     * Enable java types.
      */
-    @ConfigItem(name = ConfigItem.PARENT)
-    public Map<String, LogClassRuntimeConfig> classConfig = Collections.emptyMap();
+    @ConfigItem(name = "priority", defaultValue = "100")
+    public int priority;
 
     /**
      * Log message configuration
      */
     @ConfigItem(name = "message")
-    public LogMessageRuntimeConfig message = new LogMessageRuntimeConfig();
+    public RestLogMessageRuntimeConfig message = new RestLogMessageRuntimeConfig();
+
+    /**
+     * Log client configuration
+     */
+    @ConfigItem(name = "client")
+    public RestClientLogRuntimeTimeConfig client = new RestClientLogRuntimeTimeConfig();
 }

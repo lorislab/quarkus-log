@@ -1,6 +1,7 @@
-package org.lorislab.quarkus.log.cdi.runtime;
+package org.lorislab.quarkus.log.cdi.deployment;
 
 import io.quarkus.builder.item.SimpleBuildItem;
+import org.lorislab.quarkus.log.cdi.runtime.LogClassRuntimeConfig;
 
 import java.util.Map;
 

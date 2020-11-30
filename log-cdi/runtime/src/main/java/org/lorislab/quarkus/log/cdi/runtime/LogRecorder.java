@@ -35,11 +35,7 @@ public class LogRecorder {
         logParamValueService.init();
     }
 
-    public void config(Map<String, LogClassRuntimeConfig> classes) {
-        LogConfig.config(classes);
-    }
-
-    public void config(LogRuntimeTimeConfig config) {
-        LogConfig.config(config);
+    public void config(LogRuntimeTimeConfig config, Map<String, LogClassRuntimeConfig> classes) {
+        LogConfig.config(config, classes);
     }
 }

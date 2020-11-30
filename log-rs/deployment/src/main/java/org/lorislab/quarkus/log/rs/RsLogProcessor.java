@@ -17,7 +17,8 @@ package org.lorislab.quarkus.log.rs;
 
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
-import io.quarkus.deployment.builditem.CapabilityBuildItem;
+import io.quarkus.deployment.annotations.ExecutionTime;
+import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 
 public class RsLogProcessor {
@@ -25,15 +26,21 @@ public class RsLogProcessor {
     static final String FEATURE_NAME = "rs-log";
 
     @BuildStep
-    CapabilityBuildItem capability() {
-        return new CapabilityBuildItem(FEATURE_NAME);
+    @Record(ExecutionTime.RUNTIME_INIT)
+    void configureRuntimeProperties(RestLogRecorder recorder, RestLogBuildTimeConfig buildTimeConfig,
+                                    RestLogRuntimeTimeConfig logRuntimeTimeConfig) {
+        if (buildTimeConfig.enabled) {
+            recorder.endpoint(logRuntimeTimeConfig);
+        }
+        if (buildTimeConfig.clientEnabled) {
+            recorder.client(logRuntimeTimeConfig);
+        }
     }
 
     @BuildStep
-    void build(BuildProducer<FeatureBuildItem> feature) {
+    void build(BuildProducer<FeatureBuildItem> feature, RestLogRecorder recorder){
         feature.produce(new FeatureBuildItem(FEATURE_NAME));
     }
-
 
 }
 

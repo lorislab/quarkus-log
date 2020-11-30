@@ -15,17 +15,19 @@
  */
 package org.lorislab.quarkus.log.rs;
 
-import javax.ws.rs.container.DynamicFeature;
-import javax.ws.rs.container.ResourceInfo;
-import javax.ws.rs.core.FeatureContext;
-import javax.ws.rs.ext.Provider;
+import io.quarkus.runtime.annotations.Recorder;
 
-@Provider
-public class LoggerDynamicFeature implements DynamicFeature {
+/**
+ * The logger builder interface.
+ */
+@Recorder
+public class RestLogRecorder {
 
-    @Override
-    public void configure(ResourceInfo resourceInfo, FeatureContext context) {
-        context.register(RestLogInterceptor.class);
-        context.register(RestClientLogInterceptor.class);
+    public void endpoint(RestLogRuntimeTimeConfig config) {
+        RestLogConfig.endpoint(config);
+    }
+
+    public void client(RestLogRuntimeTimeConfig config) {
+        RestLogConfig.client(config);
     }
 }

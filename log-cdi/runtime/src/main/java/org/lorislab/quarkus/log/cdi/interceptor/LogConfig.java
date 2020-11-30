@@ -19,8 +19,6 @@ import org.lorislab.quarkus.log.cdi.runtime.LogClassRuntimeConfig;
 import org.lorislab.quarkus.log.cdi.runtime.LogRuntimeTimeConfig;
 
 import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -31,30 +29,7 @@ public class LogConfig {
 
     public static String CDI_BEAN_SUFFIX = "_Subclass";
 
-    /**
-     * The result void text.
-     */
-    public static String RESULT_VOID;
-
-    /**
-     * The message start.
-     */
-    public static MessageFormat MSG_START;
-
-    /**
-     * The message succeed.
-     */
-    public static MessageFormat MSG_SUCCEED;
-
-    /**
-     * The message failed.
-     */
-    public static MessageFormat MSG_FAILED;
-
-    /**
-     * Class configuration.
-     */
-    public static Map<String, LogClassRuntimeConfig> CLASS_CONFIG = new HashMap<>();
+    private static ConfigItem CONFIG = new ConfigItem();
 
     /**
      * The default constructor.
@@ -63,16 +38,18 @@ public class LogConfig {
         // empty constructor
     }
 
-    public static void config(Map<String, LogClassRuntimeConfig> classes) {
-        CLASS_CONFIG.putAll(classes);
+    // RUNTIME_INIT
+    public static void config(LogRuntimeTimeConfig config, Map<String, LogClassRuntimeConfig> classes) {
+        CONFIG = new ConfigItem(
+                config.message.start,
+                config.message.succeed,
+                config.message.failed,
+                config.message.returnVoid,
+                config.classConfig);
     }
 
-    public static void config(LogRuntimeTimeConfig config) {
-        MSG_START = new MessageFormat(config.start);
-        MSG_SUCCEED = new MessageFormat(config.succeed);
-        MSG_FAILED = new MessageFormat(config.failed);
-        RESULT_VOID = config.returnVoid;
-        CLASS_CONFIG.putAll(config.classConfig);
+    public static ConfigItem config() {
+        return CONFIG;
     }
 
     /**
@@ -82,7 +59,7 @@ public class LogConfig {
      * @return the log message.
      */
     static Object msgFailed(InterceptorContext context) {
-        return msg(MSG_FAILED, new Object[]{context.method, context.parameters, context.result, context.time});
+        return msg(CONFIG.msgFailed, new Object[]{context.method, context.parameters, context.result, context.time});
     }
 
     /**
@@ -92,7 +69,7 @@ public class LogConfig {
      * @return the log message.
      */
     static Object msgSucceed(InterceptorContext context) {
-        return msg(MSG_SUCCEED, new Object[]{context.method, context.parameters, context.result, context.time});
+        return msg(CONFIG.msgSucceed, new Object[]{context.method, context.parameters, context.result, context.time});
     }
 
     /**
@@ -102,7 +79,7 @@ public class LogConfig {
      * @return the log message.
      */
     static Object msgStart(InterceptorContext context) {
-        return msg(MSG_START, new Object[]{context.method, context.parameters});
+        return msg(CONFIG.msgStart, new Object[]{context.method, context.parameters});
     }
 
     /**
@@ -121,5 +98,62 @@ public class LogConfig {
         };
     }
 
+
+    public static final class ConfigItem {
+
+        /**
+         * The result void text.
+         */
+        public final String resultVoid;
+
+        /**
+         * Class configuration.
+         */
+        final Map<String, LogClassRuntimeConfig> classConfig;
+
+        /**
+         * The message start.
+         */
+        public final MessageFormat msgStart;
+
+        /**
+         * The message succeed.
+         */
+        public final MessageFormat msgSucceed;
+
+        /**
+         * The message failed.
+         */
+        public final MessageFormat msgFailed;
+
+        public final boolean enabled;
+
+
+        ConfigItem() {
+            this.enabled = false;
+            this.msgSucceed = null;
+            this.msgFailed = null;
+            this.msgStart = null;
+            this.resultVoid = null;
+            this.classConfig = null;
+        }
+
+        ConfigItem(String msgStart, String msgSucceed, String msgFailed, String resultVoid, Map<String, LogClassRuntimeConfig> classConfig) {
+            this.enabled = true;
+            this.resultVoid = resultVoid;
+            this.msgSucceed = new MessageFormat(msgSucceed);
+            this.msgStart = new MessageFormat(msgStart);
+            this.msgFailed = new MessageFormat(msgFailed);
+            this.classConfig = classConfig;
+        }
+
+        public LogClassRuntimeConfig get(String key) {
+            return classConfig.get(key);
+        }
+
+        public void put(String key, LogClassRuntimeConfig config) {
+            classConfig.put(key, config);
+        }
+    }
 }
 
