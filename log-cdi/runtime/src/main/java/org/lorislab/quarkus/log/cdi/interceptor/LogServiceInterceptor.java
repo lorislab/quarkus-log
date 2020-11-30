@@ -18,8 +18,10 @@ package org.lorislab.quarkus.log.cdi.interceptor;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.lorislab.quarkus.log.cdi.LogExclude;
+import org.lorislab.quarkus.log.ReturnContext;
+import org.lorislab.quarkus.log.LogReplaceValue;
 import org.lorislab.quarkus.log.cdi.LogService;
+import org.lorislab.quarkus.log.cdi.runtime.LogClassRuntimeConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +33,7 @@ import javax.interceptor.InvocationContext;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.Optional;
-import java.util.concurrent.CompletionStage;
+import java.util.function.BiFunction;
 
 /**
  * The logger service interceptor.
@@ -43,21 +45,11 @@ import java.util.concurrent.CompletionStage;
 @Priority(Interceptor.Priority.PLATFORM_BEFORE)
 public class LogServiceInterceptor {
 
-    static final String PROP_DISABLE_PROTECTED_METHODS = "lorislab.log.protected.disable";
-
     /**
      * The logger builder service.
      */
     @Inject
     LogParamValueService logParamService;
-
-    /**
-     * Disable the protected methods to log.
-     */
-    @Inject
-    @ConfigProperty(name = PROP_DISABLE_PROTECTED_METHODS, defaultValue = "true")
-    boolean disableProtectedMethod;
-
 
     /**
      * The method execution.
@@ -70,9 +62,10 @@ public class LogServiceInterceptor {
     public Object methodExecution(final InvocationContext ic) throws Exception {
         Object result;
         Method method = ic.getMethod();
+        System.out.println("######### --> " + method.getName() + " -> " + ic.getTarget());
         String className = getObjectClassName(ic.getTarget());
 
-        LogService ano = getLoggerServiceAno(ic.getTarget().getClass(), className, method, disableProtectedMethod);
+        LogService ano = getLoggerServiceAno(ic.getTarget().getClass(), className, method);
         if (ano.log()) {
 
             Logger logger = LoggerFactory.getLogger(className);
@@ -83,7 +76,7 @@ public class LogServiceInterceptor {
 
             try {
                 result = ic.proceed();
-                handleResult(logger, context, ano, method.getReturnType(), result);
+                result = handleResult(logger, context, ano, method.getReturnType(), result);
             } catch (InvocationTargetException ie) {
                 handleException(context, logger, ano, ie.getCause());
                 throw ie;
@@ -97,33 +90,39 @@ public class LogServiceInterceptor {
         return result;
     }
 
-    private void handleResult(Logger logger, InterceptorContext context, LogService ano, Class<?> type, Object result) {
-        if (result instanceof CompletionStage) {
-            logger.info("{}", LogConfig.msgFutureStart(context));
+    private Object handleResult(Logger logger, InterceptorContext context, LogService ano, Class<?> type, Object result) {
+        BiFunction<ReturnContext, Object, Object> fn = logParamService.returnType(result);
+        if (fn != null) {
+            ReturnContext c = new ReturnContext() {
 
-            CompletionStage<?> cs = (CompletionStage<?>) result;
-            cs.toCompletableFuture().whenComplete((u, eex) -> {
-                if (eex != null) {
-                    handleException(context, logger, ano, eex);
-                } else {
+                @Override
+                public void errorContext(Throwable t) {
+                    handleException(context, logger, ano, t);
+                }
+
+                @Override
+                public void closeContext(Object value) {
                     String contextResult = LogConfig.RESULT_VOID;
-                    if (u != Void.TYPE) {
-                        contextResult = getValue(u);
+                    if (type != Void.TYPE) {
+                        contextResult = getValue(value);
                     }
                     context.closeContext(contextResult);
                     // log the success message
                     logger.info("{}", LogConfig.msgSucceed(context));
                 }
-            });
-        } else {
-            String contextResult = LogConfig.RESULT_VOID;
-            if (type != Void.TYPE) {
-                contextResult = getValue(result);
-            }
-            context.closeContext(contextResult);
-            // log the success message
-            logger.info("{}", LogConfig.msgSucceed(context));
+            };
+            return fn.apply(c, result);
         }
+
+        // default
+        String contextResult = LogConfig.RESULT_VOID;
+        if (type != Void.TYPE) {
+            contextResult = getValue(result);
+        }
+        context.closeContext(contextResult);
+        // log the success message
+        logger.info("{}", LogConfig.msgSucceed(context));
+        return result;
     }
 
     /**
@@ -166,11 +165,12 @@ public class LogServiceInterceptor {
      * @return the corresponding class name.
      */
     private static String getClassName(Class<?> clazz) {
-        if (clazz != null && clazz.getSuperclass() != null) {
-            return clazz.getSuperclass().getName();
-        }
         if (clazz != null) {
-            return clazz.getName();
+            String tmp = clazz.getName();
+            if (tmp.endsWith(LogConfig.CDI_BEAN_SUFFIX)) {
+                return tmp.substring(0, tmp.length() -  LogConfig.CDI_BEAN_SUFFIX.length());
+            }
+            return tmp;
         }
         return null;
     }
@@ -182,29 +182,32 @@ public class LogServiceInterceptor {
      * @param method the method.
      * @return the logger service annotation.
      */
-    public static LogService getLoggerServiceAno(Class<?> clazz, String className, Method method, boolean disableProtectedMethod) {
+    public static LogService getLoggerServiceAno(Class<?> clazz, String className, Method method) {
 
-        if (disableProtectedMethod && Modifier.isProtected(method.getModifiers())) {
-            return createLoggerService(false, false);
+        String methodKey = className + "." + method.getName();
+        LogClassRuntimeConfig cc = LogConfig.CLASS_CONFIG.get(methodKey);
+        if (cc != null) {
+            return createLoggerService(cc.log, cc.stacktrace);
+        }
+        cc = LogConfig.CLASS_CONFIG.get(className);
+        if (cc != null) {
+            return createLoggerService(cc.log, cc.stacktrace);
         }
 
-        Config config = ConfigProvider.getConfig();
-        String mc = className + "." + method.getName() + "/lorislab/";
-        String c = className + "/lorislab/";
-
-        Optional<Boolean> log = config.getOptionalValue(mc + "log", Boolean.class);
-        Optional<Boolean> trace = config.getOptionalValue(mc + "trace", Boolean.class);
-        LogService anno = method.getAnnotation(LogService.class);
-        if (anno != null) {
-            return createLoggerService(log.orElse(anno.log()), trace.orElse(anno.stacktrace()));
+        System.out.println("########################\n Fallback: " + methodKey + "\n####################");
+        System.out.println("#\n" + LogConfig.CLASS_CONFIG+ "\n$$###");
+        // fallback check the annotation
+        LogService an = method.getAnnotation(LogService.class);
+        if (an != null) {
+            LogConfig.CLASS_CONFIG.put(methodKey, LogClassRuntimeConfig.create(an.log(), an.stacktrace()));
+            return createLoggerService(an.log(), an.stacktrace());
         }
-        Optional<Boolean> clog = config.getOptionalValue(c + "log", Boolean.class);
-        Optional<Boolean> ctrace = config.getOptionalValue(c + "trace", Boolean.class);
-        LogService canno = clazz.getAnnotation(LogService.class);
-        if (canno != null) {
-            return createLoggerService(log.orElse(clog.orElse(canno.log())), trace.orElse(ctrace.orElse(canno.stacktrace())));
+        an = clazz.getAnnotation(LogService.class);
+        if (an != null) {
+            LogConfig.CLASS_CONFIG.put(className, LogClassRuntimeConfig.create(an.log(), an.stacktrace()));
+            return createLoggerService(an.log(), an.stacktrace());
         }
-        return createLoggerService(log.orElse(clog.orElse(true)), trace.orElse(ctrace.orElse(true)));
+        return createLoggerService(true, true);
     }
 
     /**
@@ -263,7 +266,7 @@ public class LogServiceInterceptor {
      * @return the corresponding log value.
      */
     private String getValue(Object value, Parameter parameter) {
-        LogExclude pa = parameter.getAnnotation(LogExclude.class);
+        LogReplaceValue pa = parameter.getAnnotation(LogReplaceValue.class);
         if (pa != null) {
             if (!pa.mask().isEmpty()) {
                 return pa.mask();

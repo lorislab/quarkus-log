@@ -15,10 +15,13 @@
  */
 package org.lorislab.quarkus.log.cdi.interceptor;
 
-import org.eclipse.microprofile.config.Config;
-import org.eclipse.microprofile.config.ConfigProvider;
+import org.lorislab.quarkus.log.cdi.runtime.LogClassRuntimeConfig;
+import org.lorislab.quarkus.log.cdi.runtime.LogRuntimeTimeConfig;
 
 import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The logger configuration.
@@ -26,45 +29,50 @@ import java.text.MessageFormat;
  */
 public class LogConfig {
 
+    public static String CDI_BEAN_SUFFIX = "_Subclass";
+
     /**
      * The result void text.
      */
-    static final String RESULT_VOID;
+    public static String RESULT_VOID;
 
     /**
      * The message start.
      */
-    private static MessageFormat messageStart;
+    public static MessageFormat MSG_START;
 
     /**
      * The message succeed.
      */
-    private static MessageFormat messageSucceed;
-
-    /**
-     * The message future start.
-     */
-    private static MessageFormat messageFutureStart;
+    public static MessageFormat MSG_SUCCEED;
 
     /**
      * The message failed.
      */
-    private static MessageFormat messageFailed;
+    public static MessageFormat MSG_FAILED;
 
-    static {
-        Config config = ConfigProvider.getConfig();
-        RESULT_VOID = config.getOptionalValue("lorislab.log.result.void", String.class).orElse("void");
-        messageStart = new MessageFormat(config.getOptionalValue("lorislab.log.start", String.class).orElse("{0}({1}) started."));
-        messageSucceed = new MessageFormat(config.getOptionalValue("lorislab.log.succeed", String.class).orElse("{0}({1}):{2} [{3}s] succeed."));
-        messageFailed = new MessageFormat(config.getOptionalValue("lorislab.log.failed", String.class).orElse("{0}({1}):{2} [{3}s] failed."));
-        messageFutureStart = new MessageFormat(config.getOptionalValue("lorislab.log.futureStart", String.class).orElse("{0}({1}) future started."));
-    }
+    /**
+     * Class configuration.
+     */
+    public static Map<String, LogClassRuntimeConfig> CLASS_CONFIG = new HashMap<>();
 
     /**
      * The default constructor.
      */
     private LogConfig() {
         // empty constructor
+    }
+
+    public static void config(Map<String, LogClassRuntimeConfig> classes) {
+        CLASS_CONFIG.putAll(classes);
+    }
+
+    public static void config(LogRuntimeTimeConfig config) {
+        MSG_START = new MessageFormat(config.start);
+        MSG_SUCCEED = new MessageFormat(config.succeed);
+        MSG_FAILED = new MessageFormat(config.failed);
+        RESULT_VOID = config.returnVoid;
+        CLASS_CONFIG.putAll(config.classConfig);
     }
 
     /**
@@ -74,7 +82,7 @@ public class LogConfig {
      * @return the log message.
      */
     static Object msgFailed(InterceptorContext context) {
-        return msg(messageFailed, new Object[]{context.method, context.parameters, context.result, context.time});
+        return msg(MSG_FAILED, new Object[]{context.method, context.parameters, context.result, context.time});
     }
 
     /**
@@ -84,17 +92,7 @@ public class LogConfig {
      * @return the log message.
      */
     static Object msgSucceed(InterceptorContext context) {
-        return msg(messageSucceed, new Object[]{context.method, context.parameters, context.result, context.time});
-    }
-
-    /**
-     * The message future start method.
-     *
-     * @param context the interceptor context.
-     * @return the log message.
-     */
-    static Object msgFutureStart(InterceptorContext context) {
-        return msg(messageFutureStart, new Object[]{context.method, context.parameters, context.result, context.time});
+        return msg(MSG_SUCCEED, new Object[]{context.method, context.parameters, context.result, context.time});
     }
 
     /**
@@ -104,7 +102,7 @@ public class LogConfig {
      * @return the log message.
      */
     static Object msgStart(InterceptorContext context) {
-        return msg(messageStart, new Object[]{context.method, context.parameters});
+        return msg(MSG_START, new Object[]{context.method, context.parameters});
     }
 
     /**

@@ -13,32 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.lorislab.quarkus.log.cdi;
+package org.lorislab.quarkus.log;
 
-import java.util.List;
-import java.util.function.Function;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface LogParamValue {
+/**
+ * If present, do not include this parameter, method or class in the logger.
+ */
+@Target({ElementType.PARAMETER, ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface LogExclude {
 
-    List<Item> getAssignableFrom();
-
-    List<Item> getClasses();
-
-    default Item item(int priority, Class<?> clazz, Function<Object, String> fn) {
-        Item item = new Item();
-        item.clazz = clazz;
-        item.priority = priority;
-        item.fn = fn;
-        return item;
-    }
-
-    class Item {
-
-        public Class<?> clazz;
-
-        public Function<Object, String> fn;
-
-        public int priority;
-
-    }
 }

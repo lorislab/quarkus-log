@@ -19,24 +19,43 @@ import io.quarkus.runtime.annotations.ConfigItem;
 import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
 
-import java.util.List;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Build configuration.
  */
-@ConfigRoot(name = "lorislab.log", phase = ConfigPhase.BUILD_TIME)
-public class LogBuildTimeConfig {
+@ConfigRoot(name = "lorislab.log", phase = ConfigPhase.RUN_TIME)
+public class LogRuntimeTimeConfig {
 
     /**
-     * Enable java types.
+     * Started message
      */
-    @ConfigItem(name = "disable", defaultValue = "false")
-    public boolean disable;
+    @ConfigItem(defaultValue = "void")
+    public String returnVoid;
 
     /**
-     * Binding includes packages.
+     * Started message
      */
-    @ConfigItem(name = "packages", defaultValue = "org.lorislab")
-    public List<String> packages;
+    @ConfigItem(name = "start", defaultValue = "{0}({1}) started.")
+    public String start;
 
+    /**
+     * Succeed message
+     */
+    @ConfigItem(name = "succeed", defaultValue = "{0}({1}):{2} [{3}s] succeed.")
+    public String succeed;
+
+
+    /**
+     * Failed message
+     */
+    @ConfigItem(name = "failed", defaultValue = "{0}({1}):{2} [{3}s] failed.")
+    public String failed;
+
+    /**
+     * Log class configuration
+     */
+    @ConfigItem(name = ConfigItem.PARENT)
+    public Map<String, LogClassRuntimeConfig> classConfig = Collections.emptyMap();
 }

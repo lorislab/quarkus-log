@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.lorislab.quarkus.log.cdi;
+package org.lorislab.quarkus.log;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface LogExclude {
+public @interface LogReplaceValue {
 
     /**
      * If this flag is empty the parameter name will be use to log

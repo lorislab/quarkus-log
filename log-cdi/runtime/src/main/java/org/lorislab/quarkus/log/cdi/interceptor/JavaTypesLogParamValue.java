@@ -185,7 +185,7 @@ public class JavaTypesLogParamValue {
             sb.append("empty ").append(name);
         } else {
             sb.append(name).append('(').append(tmp.size());
-            Class clazz = Object.class;
+            Class<?> clazz = Object.class;
             if (parameter.getClass().getGenericSuperclass() instanceof ParameterizedType) {
                 ParameterizedType parameterizedType = (ParameterizedType) parameter.getClass().getGenericSuperclass();
                 Type type = parameterizedType.getActualTypeArguments()[0];

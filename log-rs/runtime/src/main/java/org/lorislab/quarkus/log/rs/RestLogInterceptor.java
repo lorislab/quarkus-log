@@ -69,18 +69,14 @@ public class RestLogInterceptor implements ContainerRequestFilter, ContainerResp
      * The resource info.
      */
     @Context
-    private ResourceInfo resourceInfo;
+    ResourceInfo resourceInfo;
 
     /**
      * The rest logger interceptor disable flag.
      */
     @Inject
     @ConfigProperty(name = "lorislab.log.rs.disable", defaultValue = "false")
-    private boolean disable;
-
-    @Inject
-    @ConfigProperty(name = PROP_DISABLE_PROTECTED_METHODS, defaultValue = "true")
-    boolean disableProtectedMethod;
+    boolean disable;
 
     /**
      * {@inheritDoc }
@@ -90,7 +86,7 @@ public class RestLogInterceptor implements ContainerRequestFilter, ContainerResp
         if (disable) {
             return;
         }
-        LogService ano = LogServiceInterceptor.getLoggerServiceAno(resourceInfo.getResourceClass(), resourceInfo.getResourceClass().getName(), resourceInfo.getResourceMethod(), disableProtectedMethod);
+        LogService ano = LogServiceInterceptor.getLoggerServiceAno(resourceInfo.getResourceClass(), resourceInfo.getResourceClass().getName(), resourceInfo.getResourceMethod());
         requestContext.setProperty(ANO, ano);
 
         if (ano.log()) {

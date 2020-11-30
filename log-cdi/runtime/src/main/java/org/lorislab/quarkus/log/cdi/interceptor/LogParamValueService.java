@@ -15,7 +15,10 @@
  */
 package org.lorislab.quarkus.log.cdi.interceptor;
 
-import org.lorislab.quarkus.log.cdi.LogParamValue;
+import org.lorislab.quarkus.log.LogExclude;
+import org.lorislab.quarkus.log.LogParamValue;
+import org.lorislab.quarkus.log.LogReturnType;
+import org.lorislab.quarkus.log.ReturnContext;
 
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
@@ -23,53 +26,70 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
  * Logger builder service.
  */
+@LogExclude
 @Singleton
 public class LogParamValueService {
 
     /**
      * Gets the map of the mapping function for the class.
      */
-    public static Map<Class<?>, Function<Object, String>> CLASSES = new ConcurrentHashMap<>(JavaTypesLogParamValue.classes());
+    public static Map<Class<?>, Function<Object, String>> INSTANCE_OF = new ConcurrentHashMap<>(JavaTypesLogParamValue.classes());
 
     /**
      * Gets the map of the mapping function for the assignable class.
      */
     public static Map<Class<?>, Function<Object, String>> ASSIGNABLE_FROM = new HashMap<>(JavaTypesLogParamValue.assignableFrom());
 
+    public static Map<Class<?>, BiFunction<ReturnContext, Object, Object>> RETURN_TYPES = new HashMap<>();
+
+    public static Map<Class<?>, BiFunction<ReturnContext, Object, Object>> RETURN_ASSIGNABLE_TYPES = new HashMap<>();
+
+    @Inject
+    @Any
+    Instance<LogReturnType> returnTypes;
+
     @Inject @Any
-    Instance<LogParamValue> services;
+    Instance<LogParamValue> parameterTypes;
 
     public void init() {
-        if (services != null) {
-            Map<Class<?>, LogParamValue.Item> classes = new HashMap<>();
-            Map<Class<?>, LogParamValue.Item> assignable = new HashMap<>();
-            for (LogParamValue def : services) {
-                map(def.getClasses(), classes);
-                map(def.getAssignableFrom(), assignable);
-            }
-            classes.forEach((c, item) -> CLASSES.put(c, item.fn));
-            assignable.forEach((c, item) -> ASSIGNABLE_FROM.put(c, item.fn));
+        if (parameterTypes != null) {
+            Map<Class<?>, LogParamValue> classes = new HashMap<>();
+            Map<Class<?>, LogParamValue> assignable = new HashMap<>();
+            parameterTypes.forEach(p -> priority(p, classes, assignable));
+            classes.forEach((x, p) -> INSTANCE_OF.put(x, p.function()));
+            assignable.forEach((x, p) -> ASSIGNABLE_FROM.put(x, p.function()));
+        }
+
+        if (returnTypes != null) {
+            returnTypes.forEach(r -> {
+                r.assignableClasses().forEach(x -> RETURN_ASSIGNABLE_TYPES.put(x, r.function()));
+                r.instanceOfClasses().forEach(x -> RETURN_TYPES.put(x, r.function()));
+            });
         }
     }
 
-    private void map(List<LogParamValue.Item> items, Map<Class<?>, LogParamValue.Item> target) {
-        if (items != null) {
-            for (LogParamValue.Item item : items) {
-                LogParamValue.Item tmp = target.get(item.clazz);
-                if (tmp != null) {
-                    if (item.priority > tmp.priority) {
-                        target.put(item.clazz, item);
-                    }
-                } else {
-                    target.put(item.clazz, item);
+    private void priority(LogParamValue p, Map<Class<?>, LogParamValue> classes, Map<Class<?>, LogParamValue> assignable) {
+        priority(p, p.classes(), classes);
+        priority(p, p.assignableClasses(), assignable);
+    }
+
+    private void priority(LogParamValue p, List<Class<?>> classes, Map<Class<?>, LogParamValue> target) {
+        classes.forEach(x -> {
+            LogParamValue v = target.get(x);
+            if (v != null) {
+                if (p.priority() > v.priority()) {
+                    target.put(x, p);
                 }
+            } else {
+                target.put(x, p);
             }
-        }
+        });
     }
 
     /**
@@ -81,7 +101,7 @@ public class LogParamValueService {
     public String getParameterValue(Object parameter) {
         if (parameter != null) {
             Class<?> clazz = parameter.getClass();
-            Function<Object, String> fn = CLASSES.get(clazz);
+            Function<Object, String> fn = INSTANCE_OF.get(clazz);
             if (fn != null) {
                 return fn.apply(parameter);
             }
@@ -89,7 +109,7 @@ public class LogParamValueService {
             for (Map.Entry<Class<?>, Function<Object, String>> entry : ASSIGNABLE_FROM.entrySet()) {
                 if (entry.getKey().isAssignableFrom(clazz)) {
                     Function<Object, String> fn2 = entry.getValue();
-                    CLASSES.put(clazz, fn2);
+                    INSTANCE_OF.put(clazz, fn2);
                     return fn2.apply(parameter);
                 }
             }
@@ -97,5 +117,22 @@ public class LogParamValueService {
         return "" + parameter;
     }
 
+    public BiFunction<ReturnContext, Object, Object> returnType(Object result) {
+        if (result != null) {
+            Class<?> clazz = result.getClass();
+            BiFunction<ReturnContext, Object, Object> fn = RETURN_TYPES.get(clazz);
+            if (fn != null) {
+                return fn;
+            }
 
+            for (Map.Entry<Class<?>, BiFunction<ReturnContext, Object, Object>> entry : RETURN_ASSIGNABLE_TYPES.entrySet()) {
+                if (entry.getKey().isAssignableFrom(clazz)) {
+                    BiFunction<ReturnContext, Object, Object> fn2 = entry.getValue();
+                    RETURN_TYPES.put(clazz, fn2);
+                    return fn2;
+                }
+            }
+        }
+        return null;
+    }
 }
