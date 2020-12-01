@@ -67,7 +67,7 @@ public class LogServiceInterceptor {
         String className = getObjectClassName(ic.getTarget());
 
         LogService ano = getLoggerServiceAno(ic.getTarget().getClass(), className, method);
-        if (ano.disabled()) {
+        if (!ano.enabled()) {
             return ic.proceed();
         }
 
@@ -179,23 +179,23 @@ public class LogServiceInterceptor {
         String methodKey = className + "." + method.getName();
         LogClassRuntimeConfig cc = LogConfig.config().get(methodKey);
         if (cc != null) {
-            return createLoggerService(cc.disabled, cc.stacktrace);
+            return createLoggerService(cc.enabled, cc.stacktrace);
         }
         cc = LogConfig.config().get(className);
         if (cc != null) {
-            return createLoggerService(cc.disabled, cc.stacktrace);
+            return createLoggerService(cc.enabled, cc.stacktrace);
         }
 
         // fallback check the annotation
         LogService an = method.getAnnotation(LogService.class);
         if (an != null) {
-            LogConfig.config().put(methodKey, LogClassRuntimeConfig.create(an.disabled(), an.stacktrace()));
-            return createLoggerService(an.disabled(), an.stacktrace());
+            LogConfig.config().put(methodKey, LogClassRuntimeConfig.create(an.enabled(), an.stacktrace()));
+            return createLoggerService(an.enabled(), an.stacktrace());
         }
         an = clazz.getAnnotation(LogService.class);
         if (an != null) {
-            LogConfig.config().put(className, LogClassRuntimeConfig.create(an.disabled(), an.stacktrace()));
-            return createLoggerService(an.disabled(), an.stacktrace());
+            LogConfig.config().put(className, LogClassRuntimeConfig.create(an.enabled(), an.stacktrace()));
+            return createLoggerService(an.enabled(), an.stacktrace());
         }
         return createLoggerService(true, true);
     }
@@ -203,15 +203,15 @@ public class LogServiceInterceptor {
     /**
      * Creates the logger service.
      *
-     * @param disabled    the log disabled flag.
+     * @param enabled    the log enabled flag.
      * @param stacktrace the stacktrace flag.
      * @return the corresponding logger service.
      */
-    private static LogService createLoggerService(boolean disabled, boolean stacktrace) {
+    private static LogService createLoggerService(boolean enabled, boolean stacktrace) {
         return new LogService() {
             @Override
-            public boolean disabled() {
-                return disabled;
+            public boolean enabled() {
+                return enabled;
             }
 
             @Override

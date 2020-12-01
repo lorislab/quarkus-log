@@ -19,6 +19,7 @@ import org.lorislab.quarkus.log.cdi.runtime.LogClassRuntimeConfig;
 import org.lorislab.quarkus.log.cdi.runtime.LogRuntimeTimeConfig;
 
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -45,7 +46,8 @@ public class LogConfig {
                 config.message.succeed,
                 config.message.failed,
                 config.message.returnVoid,
-                config.classConfig);
+                config.classConfig,
+                classes);
     }
 
     public static ConfigItem config() {
@@ -138,13 +140,17 @@ public class LogConfig {
             this.classConfig = null;
         }
 
-        ConfigItem(String msgStart, String msgSucceed, String msgFailed, String resultVoid, Map<String, LogClassRuntimeConfig> classConfig) {
+        ConfigItem(String msgStart, String msgSucceed, String msgFailed, String resultVoid, Map<String, LogClassRuntimeConfig> classConfig, Map<String, LogClassRuntimeConfig> classes) {
             this.enabled = true;
             this.resultVoid = resultVoid;
             this.msgSucceed = new MessageFormat(msgSucceed);
             this.msgStart = new MessageFormat(msgStart);
             this.msgFailed = new MessageFormat(msgFailed);
-            this.classConfig = classConfig;
+            this.classConfig = new HashMap<>();
+            // configuration classes from source code
+            this.classConfig.putAll(classes);
+            // configuration application.properties
+            this.classConfig.putAll(classConfig);
         }
 
         public LogClassRuntimeConfig get(String key) {

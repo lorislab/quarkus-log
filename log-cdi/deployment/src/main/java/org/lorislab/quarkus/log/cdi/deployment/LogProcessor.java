@@ -66,9 +66,9 @@ public class LogProcessor {
     }
 
     @BuildStep
-    public void capability(LogBuildTimeConfig buildTimeConfig,
+    public void capability(LogBuildTimeConfig logBuildTimeConfig,
                            BuildProducer<CapabilityBuildItem> capability) {
-        if (buildTimeConfig.enabled) {
+        if (logBuildTimeConfig.enabled) {
             capability.produce(new CapabilityBuildItem(FEATURE_NAME));
         }
     }
@@ -150,8 +150,8 @@ public class LogProcessor {
         LogClassRuntimeConfig classConfig = LogClassRuntimeConfig.create();
         ano.valuesWithDefaults(index).forEach(a -> {
             switch (a.name()) {
-                case "disabled":
-                    classConfig.disabled = a.asBoolean();
+                case "enabled":
+                    classConfig.enabled = a.asBoolean();
                     break;
                 case "stacktrace":
                     classConfig.stacktrace = a.asBoolean();

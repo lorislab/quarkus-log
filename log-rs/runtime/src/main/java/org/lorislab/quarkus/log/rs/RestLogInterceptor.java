@@ -26,21 +26,13 @@ import javax.ws.rs.container.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
+import static org.lorislab.quarkus.log.rs.RestLogConfig.*;
+
 /**
  * The rest log interceptor.
  */
-@LogService(disabled = true)
+@LogService(enabled = false)
 public class RestLogInterceptor implements ContainerRequestFilter, ContainerResponseFilter {
-
-    /**
-     * The annotation interceptor property.
-     */
-    private static final String ANO = "ano";
-
-    /**
-     * The context interceptor property.
-     */
-    private static final String CONTEXT = "context";
 
     /**
      * The resource info.
@@ -53,19 +45,19 @@ public class RestLogInterceptor implements ContainerRequestFilter, ContainerResp
      */
     @Override
     public void filter(ContainerRequestContext requestContext) {
-        if (!RestLogConfig.endpoint().enabled) {
+        if (!endpoint().enabled) {
             return;
         }
         LogService ano = LogServiceInterceptor.getLoggerServiceAno(resourceInfo.getResourceClass(), resourceInfo.getResourceClass().getName(), resourceInfo.getResourceMethod());
         requestContext.setProperty(ANO, ano);
-        if (ano.disabled()) {
+        if (!ano.enabled()) {
             return;
         }
         InterceptorContext context = new InterceptorContext(requestContext.getMethod(), requestContext.getUriInfo().getRequestUri().toString());
         requestContext.setProperty(CONTEXT, context);
         // create the logger
         Logger logger = LoggerFactory.getLogger(resourceInfo.getResourceClass());
-        logger.info("{}", LogConfig.msg(RestLogConfig.endpoint().msgStart, new Object[]{context.method, requestContext.getUriInfo().getRequestUri(), requestContext.hasEntity()}));
+        logger.info("{}", LogConfig.msg(endpoint().msgStart, new Object[]{context.method, requestContext.getUriInfo().getRequestUri(), requestContext.hasEntity()}));
     }
 
     /**
@@ -73,18 +65,18 @@ public class RestLogInterceptor implements ContainerRequestFilter, ContainerResp
      */
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
-        if (!RestLogConfig.endpoint().enabled) {
+        if (!endpoint().enabled) {
             return;
         }
         LogService ano = (LogService) requestContext.getProperty(ANO);
-        if (ano == null || ano.disabled()) {
+        if (ano == null || !ano.enabled()) {
             return;
         }
         InterceptorContext context = (InterceptorContext) requestContext.getProperty(CONTEXT);
         Response.StatusType status = responseContext.getStatusInfo();
         context.closeContext(status.getReasonPhrase());
         Logger logger = LoggerFactory.getLogger(resourceInfo.getResourceClass());
-        logger.info("{}", LogConfig.msg(RestLogConfig.endpoint().msgSucceed,
+        logger.info("{}", LogConfig.msg(endpoint().msgSucceed,
                 new Object[]{
                         context.method,
                         context.parameters,

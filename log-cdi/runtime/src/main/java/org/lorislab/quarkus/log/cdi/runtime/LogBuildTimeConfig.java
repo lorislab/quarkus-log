@@ -30,7 +30,7 @@ public class LogBuildTimeConfig {
      * Enable java types.
      */
     @ConfigItem(name = "enabled", defaultValue = "true")
-    public boolean enabled;
+    public boolean enabled = true;
 
     /**
      * Binding includes packages.

@@ -10,9 +10,9 @@ public final class LogClassRuntimeConfig {
         return new LogClassRuntimeConfig();
     }
 
-    public static LogClassRuntimeConfig create(boolean disabled, boolean stacktrace) {
+    public static LogClassRuntimeConfig create(boolean enabled, boolean stacktrace) {
         LogClassRuntimeConfig config = new LogClassRuntimeConfig();
-        config.disabled = disabled;
+        config.enabled = enabled;
         config.stacktrace = stacktrace;
         return config;
     }
@@ -20,8 +20,8 @@ public final class LogClassRuntimeConfig {
     /**
      * Enabled or disable log for the class.
      */
-    @ConfigItem(name = "disabled", defaultValue = "false")
-    public boolean disabled = false;
+    @ConfigItem(name = "enabled", defaultValue = "true")
+    public boolean enabled = true;
 
     /**
      * Enabled or disable stacktrace for the class.

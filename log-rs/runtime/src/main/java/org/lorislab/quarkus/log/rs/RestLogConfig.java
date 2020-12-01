@@ -4,6 +4,16 @@ import java.text.MessageFormat;
 
 public class RestLogConfig {
 
+    /**
+     * The context interceptor property.
+     */
+    public static final String CONTEXT = "context";
+
+    /**
+     * The annotation interceptor property.
+     */
+    public static final String ANO = "ano";
+
     private static ConfigItem ENDPOINT = new ConfigItem();
 
     private static ConfigItem CLIENT = new ConfigItem();
