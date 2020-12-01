@@ -13,27 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.lorislab.quarkus.log.rs;
+package org.lorislab.quarkus.log.vertx.web;
 
+import io.quarkus.arc.deployment.BeanContainerBuildItem;
+import io.quarkus.arc.runtime.BeanContainer;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
+import io.quarkus.vertx.http.deployment.VertxWebRouterBuildItem;
 
-public class RsLogProcessor {
+public class VertxWebLogProcessor {
 
-    static final String FEATURE_NAME = "rs-log";
+    static final String FEATURE_NAME = "log-vertx-web";
 
     @BuildStep
     @Record(ExecutionTime.RUNTIME_INIT)
-    void configureRuntimeProperties(RestLogRecorder recorder, RestLogBuildTimeConfig buildTimeConfig,
-                                    RestLogRuntimeTimeConfig logRuntimeTimeConfig) {
+    void configureRuntimeProperties(VertxWebLogRecorder recorder, VertxWebLogBuildTimeConfig buildTimeConfig,
+                                    BeanContainerBuildItem beanContainer, VertxWebRouterBuildItem router,
+                                    VertxWebLogRuntimeTimeConfig logRuntimeTimeConfig) {
         if (buildTimeConfig.enabled) {
-            recorder.endpoint(logRuntimeTimeConfig);
-        }
-        if (buildTimeConfig.clientEnabled) {
-            recorder.client(logRuntimeTimeConfig);
+            BeanContainer container = beanContainer.getValue();
+            recorder.endpoint(container, router.getRouter(), logRuntimeTimeConfig);
         }
     }
 

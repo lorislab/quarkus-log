@@ -45,6 +45,7 @@
         <module>log-mutiny</module>
         <module>log-concurrent</module>
         <module>log-cdi</module>
+        <module>log-vertx-web</module>
         <module>log-rs</module>
     </modules>
 

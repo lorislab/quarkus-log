@@ -1,10 +1,10 @@
-package org.lorislab.quarkus.log.rs;
+package org.lorislab.quarkus.log.vertx.web;
 
 import io.quarkus.runtime.annotations.ConfigGroup;
 import io.quarkus.runtime.annotations.ConfigItem;
 
 @ConfigGroup
-public class RestLogMessageRuntimeConfig {
+public class VertxWebLogMessageRuntimeConfig {
 
     /**
      * Started message

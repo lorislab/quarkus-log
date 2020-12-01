@@ -15,10 +15,9 @@
  */
 package org.lorislab.quarkus.log.rs;
 
+import org.lorislab.quarkus.log.LogExclude;
 import org.lorislab.quarkus.log.cdi.interceptor.InterceptorContext;
 import org.lorislab.quarkus.log.cdi.interceptor.LogConfig;
-import org.lorislab.quarkus.log.cdi.LogService;
-import org.lorislab.quarkus.log.cdi.interceptor.LogServiceInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +34,7 @@ import static org.lorislab.quarkus.log.rs.RestLogConfig.*;
  *
  * @author Andrej Petras
  */
-@LogService(enabled = false)
+@LogExclude
 public class RestClientLogInterceptor implements ClientRequestFilter, ClientResponseFilter {
 
     /**
