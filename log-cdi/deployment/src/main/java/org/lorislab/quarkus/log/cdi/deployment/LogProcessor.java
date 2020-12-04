@@ -27,6 +27,7 @@ import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.CapabilityBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import org.jboss.jandex.*;
+import org.jboss.logging.Logger;
 import org.lorislab.quarkus.log.LogExclude;
 import org.lorislab.quarkus.log.cdi.LogService;
 import org.lorislab.quarkus.log.cdi.runtime.*;
@@ -38,6 +39,8 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 
 public class LogProcessor {
+
+    private static Logger LOGGER = Logger.getLogger(LogProcessor.class);
 
     static final String FEATURE_NAME = "cdi-log";
 
@@ -54,23 +57,18 @@ public class LogProcessor {
 
     @BuildStep
     @Record(ExecutionTime.RUNTIME_INIT)
-    void configureRuntimeProperties(LogRecorder recorder, LogBuildTimeConfig logBuildTimeConfig,
+    void configureRuntimeProperties(LogRecorder recorder,
                                     LogRuntimeTimeConfig logRuntimeTimeConfig,
                                     LogClassesConfigBuildItem logClassesConfigBuildItem,
                                     BeanContainerBuildItem beanContainer) {
-        if (logBuildTimeConfig.enabled) {
-            recorder.config(logRuntimeTimeConfig, logClassesConfigBuildItem.getClasses());
-            BeanContainer container = beanContainer.getValue();
-            recorder.init(container);
-        }
+        BeanContainer container = beanContainer.getValue();
+        recorder.init(container, logRuntimeTimeConfig, logClassesConfigBuildItem.getClasses());
     }
 
     @BuildStep
     public void capability(LogBuildTimeConfig logBuildTimeConfig,
                            BuildProducer<CapabilityBuildItem> capability) {
-        if (logBuildTimeConfig.enabled) {
-            capability.produce(new CapabilityBuildItem(FEATURE_NAME));
-        }
+        capability.produce(new CapabilityBuildItem(FEATURE_NAME));
     }
 
     @BuildStep

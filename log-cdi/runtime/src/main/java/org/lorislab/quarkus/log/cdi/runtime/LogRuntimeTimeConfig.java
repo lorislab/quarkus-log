@@ -29,6 +29,12 @@ import java.util.Map;
 public class LogRuntimeTimeConfig {
 
     /**
+     * Enable java types.
+     */
+    @ConfigItem(name = "enabled", defaultValue = "true")
+    public boolean enabled = true;
+
+    /**
      * Log class configuration
      */
     @ConfigItem(name = ConfigItem.PARENT)

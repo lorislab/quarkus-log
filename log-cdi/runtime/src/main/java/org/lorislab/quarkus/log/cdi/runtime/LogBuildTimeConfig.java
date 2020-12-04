@@ -26,11 +26,7 @@ import java.util.List;
  */
 @ConfigRoot(name = "lorislab.log", phase = ConfigPhase.BUILD_TIME)
 public class LogBuildTimeConfig {
-    /**
-     * Enable java types.
-     */
-    @ConfigItem(name = "enabled", defaultValue = "true")
-    public boolean enabled = true;
+
 
     /**
      * Binding includes packages.
