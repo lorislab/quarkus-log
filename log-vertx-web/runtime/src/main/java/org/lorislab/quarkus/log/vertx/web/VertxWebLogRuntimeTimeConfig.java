@@ -22,8 +22,20 @@ import io.quarkus.runtime.annotations.ConfigRoot;
 /**
  * Build configuration.
  */
-@ConfigRoot(name = "lorislab.log.verxt.web", phase = ConfigPhase.RUN_TIME)
+@ConfigRoot(name = "lorislab.log.vertx.web", phase = ConfigPhase.RUN_TIME)
 public class VertxWebLogRuntimeTimeConfig {
+
+    /**
+     * Enable java types.
+     */
+    @ConfigItem(name = "enabled", defaultValue = "true")
+    public boolean enabled;
+
+    /**
+     * Enable java types.
+     */
+    @ConfigItem(name = "client.enabled", defaultValue = "true")
+    public boolean clientEnabled;
 
     /**
      * Enable java types.

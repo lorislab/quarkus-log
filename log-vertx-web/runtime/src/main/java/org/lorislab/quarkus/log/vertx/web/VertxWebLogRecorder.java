@@ -11,6 +11,9 @@ import javax.enterprise.inject.Default;
 public class VertxWebLogRecorder {
 
     public void endpoint(BeanContainer container, RuntimeValue<Router> router, VertxWebLogRuntimeTimeConfig config) {
+        if (!config.enabled) {
+            return;
+        }
         VertxWebLogConfig.endpoint(config);
         VertxWebInterceptor interceptor = container.instance(VertxWebInterceptor.class, Default.Literal.INSTANCE);
         router.getValue().route().order(-1 * config.priority).handler(interceptor::filter);

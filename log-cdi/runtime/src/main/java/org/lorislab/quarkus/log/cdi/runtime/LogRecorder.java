@@ -35,7 +35,7 @@ public class LogRecorder {
 
     public void init(BeanContainer container, LogRuntimeTimeConfig config, Map<String, LogClassRuntimeConfig> classes) {
         if (!config.enabled) {
-            LOGGER.info("CDI logger interceptor is disabled");
+            LOGGER.info("Lorislab logger interceptor is disabled");
             return;
         }
         LogConfig.config(config, classes);

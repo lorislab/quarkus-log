@@ -30,13 +30,11 @@ public class VertxWebLogProcessor {
 
     @BuildStep
     @Record(ExecutionTime.RUNTIME_INIT)
-    void configureRuntimeProperties(VertxWebLogRecorder recorder, VertxWebLogBuildTimeConfig buildTimeConfig,
+    void configureRuntimeProperties(VertxWebLogRecorder recorder,
                                     BeanContainerBuildItem beanContainer, VertxWebRouterBuildItem router,
                                     VertxWebLogRuntimeTimeConfig logRuntimeTimeConfig) {
-        if (buildTimeConfig.enabled) {
-            BeanContainer container = beanContainer.getValue();
-            recorder.endpoint(container, router.getRouter(), logRuntimeTimeConfig);
-        }
+        BeanContainer container = beanContainer.getValue();
+        recorder.endpoint(container, router.getRouter(), logRuntimeTimeConfig);
     }
 
     @BuildStep

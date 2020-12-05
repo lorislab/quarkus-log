@@ -91,10 +91,12 @@ public class LogProcessor {
     }
 
     private static void readClassInfo(IndexView index, ClassInfo ci, List<String> packages, Map<String, LogClassRuntimeConfig> classes) {
-        // check packages
-        Optional<String> add = packages.stream().filter(x -> ci.name().toString().startsWith(x)).findFirst();
-        if (add.isEmpty()) {
-            return;
+        // check packages only if the list if defined
+        if (packages != null && !packages.isEmpty()) {
+            Optional<String> add = packages.stream().filter(x -> ci.name().toString().startsWith(x)).findFirst();
+            if (add.isEmpty()) {
+                return;
+            }
         }
 
         // skip exclude classes
@@ -201,15 +203,19 @@ public class LogProcessor {
     }
 
     private static boolean checkMethod(MethodInfo method) {
+        // ignore static method
         if (Modifier.isStatic(method.flags())) {
             return false;
         }
+        // ignore none public methods
         if (!Modifier.isPublic(method.flags())) {
             return false;
         }
+        // skip constructor
         if ("<init>".equals(method.name())) {
             return false;
         }
+        // skip method which contains @LogExclude
         if (method.annotation(EXCLUDE) != null) {
             return false;
         }

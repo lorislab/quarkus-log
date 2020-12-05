@@ -20,16 +20,19 @@ import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.Provider;
 
+import static org.lorislab.quarkus.log.rs.RestLogConfig.client;
+import static org.lorislab.quarkus.log.rs.RestLogConfig.endpoint;
+
 @Provider
 public class RestLogDynamicFeature implements DynamicFeature {
 
     @Override
     public void configure(ResourceInfo resourceInfo, FeatureContext context) {
-        if (RestLogConfig.endpoint().enabled) {
-            context.register(RestLogInterceptor.class, RestLogConfig.endpoint().priority);
+        if (endpoint().enabled) {
+            context.register(RestLogInterceptor.class, endpoint().priority);
         }
-        if (RestLogConfig.client().enabled) {
-            context.register(RestClientLogInterceptor.class, RestLogConfig.client().priority);
+        if (client().enabled) {
+            context.register(RestClientLogInterceptor.class, client().priority);
         }
     }
 }

@@ -27,7 +27,6 @@ import java.util.List;
 @ConfigRoot(name = "lorislab.log", phase = ConfigPhase.BUILD_TIME)
 public class LogBuildTimeConfig {
 
-
     /**
      * Binding includes packages.
      */
