@@ -83,17 +83,20 @@ public class LogProcessor {
         for (ClassInfo ci : index.getKnownClasses()) {
             boolean tmp = checkClass(ci);
             if (tmp) {
-                readClassInfo(index, ci, buildTimeConfig.packages, classes);
+                readClassInfo(index, ci, buildTimeConfig, classes);
             }
         }
 
+        if (LOGGER.isDebugEnabled()) {
+            classes.keySet().forEach(LOGGER::debug);
+        }
         return new LogClassesConfigBuildItem(classes);
     }
 
-    private static void readClassInfo(IndexView index, ClassInfo ci, List<String> packages, Map<String, LogClassRuntimeConfig> classes) {
+    private static void readClassInfo(IndexView index, ClassInfo ci, LogBuildTimeConfig config, Map<String, LogClassRuntimeConfig> classes) {
         // check packages only if the list if defined
-        if (packages != null && !packages.isEmpty()) {
-            Optional<String> add = packages.stream().filter(x -> ci.name().toString().startsWith(x)).findFirst();
+        if (config.packages != null && !config.packages.isEmpty()) {
+            Optional<String> add = config.packages.stream().filter(x -> ci.name().toString().startsWith(x)).findFirst();
             if (add.isEmpty()) {
                 return;
             }
@@ -114,12 +117,12 @@ public class LogProcessor {
         }
 
         // check class methods
-        boolean findMethod = findMethods(index, ci, classConfig, ci.name(), classes);
+        boolean findMethod = findMethods(index, ci, classConfig, ci.name(), classes, config);
         DotName superClass = ci.superName();
         DotName objectClass = DotName.createSimple(Object.class.getName());
         while (superClass != null && !objectClass.equals(superClass)) {
             ClassInfo item = index.getClassByName(superClass);
-            findMethods(index, item, classConfig, ci.name(), classes);
+            findMethods(index, item, classConfig, ci.name(), classes, config);
             superClass = item.superName();
         }
 
@@ -128,10 +131,15 @@ public class LogProcessor {
         }
     }
 
-    private static boolean findMethods(IndexView index, ClassInfo clazz, LogClassRuntimeConfig classConfig, DotName className, Map<String, LogClassRuntimeConfig> classes) {
+    private static boolean findMethods(IndexView index, ClassInfo clazz, LogClassRuntimeConfig classConfig, DotName className, Map<String, LogClassRuntimeConfig> classes, LogBuildTimeConfig config) {
         boolean findMethod = false;
         for (MethodInfo method : clazz.methods()) {
-            if (!checkMethod(method)) {
+            boolean check = checkMethod(method, config);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Class: " + clazz + ",method:" + method + ",interceptor:");
+            }
+            // skip method
+            if (!check) {
                 continue;
             }
             AnnotationInstance ano = method.annotation(LOG_SERVICE);
@@ -163,6 +171,7 @@ public class LogProcessor {
 
     @BuildStep
     public void interceptorBinding(
+            LogBuildTimeConfig config,
             LogClassesConfigBuildItem logClassesConfigBuildItem,
             BuildProducer<AnnotationsTransformerBuildItem> annotationsTransformerBuildItemBuildProducer) {
 
@@ -175,7 +184,7 @@ public class LogProcessor {
 
             public void transform(TransformationContext context) {
                 MethodInfo mi = context.getTarget().asMethod();
-                if (checkMethod(mi)) {
+                if (checkMethod(mi, config)) {
                     ClassInfo ci = mi.declaringClass();
                     if (logClassesConfigBuildItem.getClasses().containsKey(methodKey(ci.name(), mi))) {
                         context.transform().add(LogService.class).done();
@@ -202,18 +211,20 @@ public class LogProcessor {
         return false;
     }
 
-    private static boolean checkMethod(MethodInfo method) {
+    private static boolean checkMethod(MethodInfo method, LogBuildTimeConfig config) {
         // ignore static method
         if (Modifier.isStatic(method.flags())) {
-            return false;
-        }
-        // ignore none public methods
-        if (!Modifier.isPublic(method.flags())) {
             return false;
         }
         // skip constructor
         if ("<init>".equals(method.name())) {
             return false;
+        }
+        // ignore none public methods
+        if (config.onlyPublicMethod) {
+            if (!Modifier.isPublic(method.flags())){
+                return false;
+            }
         }
         // skip method which contains @LogExclude
         if (method.annotation(EXCLUDE) != null) {

@@ -12,32 +12,33 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="log-cdi" />
     <orderEntry type="module" module-name="log-api" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-core:1.9.2.Final" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-core:1.10.3.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: jakarta.annotation:jakarta.annotation-api:1.3.5" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: jakarta.enterprise:jakarta.enterprise.cdi-api:2.0.2" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: jakarta.el:jakarta.el-api:3.0.3" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: jakarta.interceptor:jakarta.interceptor-api:1.2.5" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: jakarta.inject:jakarta.inject-api:1.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-ide-launcher:1.9.2.Final" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-development-mode-spi:1.9.2.Final" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-ide-launcher:1.10.3.Final" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-development-mode-spi:1.10.3.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.smallrye.config:smallrye-config:1.9.3" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.smallrye.common:smallrye-common-annotation:1.4.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.smallrye.common:smallrye-common-annotation:1.4.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.smallrye.config:smallrye-config-common:1.9.3" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.microprofile.config:microprofile-config-api:1.4" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.smallrye.common:smallrye-common-expression:1.4.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.smallrye.common:smallrye-common-function:1.4.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.smallrye.common:smallrye-common-constraint:1.4.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.smallrye.common:smallrye-common-classloader:1.4.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.ow2.asm:asm:8.0.1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.smallrye.common:smallrye-common-expression:1.4.1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.smallrye.common:smallrye-common-function:1.4.1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.smallrye.common:smallrye-common-constraint:1.4.1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.smallrye.common:smallrye-common-classloader:1.4.1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.ow2.asm:asm:9.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.jboss.logging:jboss-logging:3.4.1.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.jboss.logmanager:jboss-logmanager-embedded:1.0.6" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.jboss.logging:jboss-logging-annotations:2.1.0.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.jboss.threads:jboss-threads:3.1.1.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.slf4j:slf4j-api:1.7.30" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.jboss.slf4j:slf4j-jboss-logging:1.2.0.Final" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.jboss.slf4j:slf4j-jboss-logmanager:1.1.0.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.graalvm.sdk:graal-sdk:20.2.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.wildfly.common:wildfly-common:1.5.4.Final-format-001" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-bootstrap-runner:1.9.2.Final" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-bootstrap-runner:1.10.3.Final" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.smallrye.common:smallrye-common-io:1.4.1" level="project" />
     <orderEntry type="library" name="Maven: org.jboss.spec.javax.ws.rs:jboss-jaxrs-api_2.1_spec:2.0.1.Final" level="project" />
   </component>
 </module>

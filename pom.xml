@@ -47,10 +47,12 @@
         <module>log-cdi</module>
         <module>log-vertx-web</module>
         <module>log-rs</module>
+        <module>integration-test</module>
     </modules>
 
     <properties>
-        <quarkus.version>1.10.2.Final</quarkus.version>
+        <quarkus.version>1.10.3.Final</quarkus.version>
+        <version.surefire.plugin>3.0.0-M5</version.surefire.plugin>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -65,6 +67,12 @@
                 <version>${quarkus.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.10</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

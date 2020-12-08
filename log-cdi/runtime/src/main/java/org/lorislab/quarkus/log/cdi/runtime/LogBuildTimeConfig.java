@@ -33,4 +33,10 @@ public class LogBuildTimeConfig {
     @ConfigItem(name = "packages", defaultValue = "org.lorislab")
     public List<String> packages;
 
+    /**
+     * Check only public methods
+     */
+    @ConfigItem(name = "only-public-method", defaultValue = "true")
+    public boolean onlyPublicMethod = true;
+
 }
