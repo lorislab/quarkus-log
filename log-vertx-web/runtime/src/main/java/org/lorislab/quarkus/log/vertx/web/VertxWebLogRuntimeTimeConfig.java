@@ -19,6 +19,8 @@ import io.quarkus.runtime.annotations.ConfigItem;
 import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
 
+import java.util.Optional;
+
 /**
  * Build configuration.
  */
@@ -34,12 +36,6 @@ public class VertxWebLogRuntimeTimeConfig {
     /**
      * Enable java types.
      */
-    @ConfigItem(name = "client.enabled", defaultValue = "true")
-    public boolean clientEnabled;
-
-    /**
-     * Enable java types.
-     */
     @ConfigItem(name = "priority", defaultValue = "100")
     public int priority;
 
@@ -48,5 +44,11 @@ public class VertxWebLogRuntimeTimeConfig {
      */
     @ConfigItem(name = "message")
     public VertxWebLogMessageRuntimeConfig message = new VertxWebLogMessageRuntimeConfig();
+
+    /**
+     * Exclude URI regex.
+     */
+    @ConfigItem(name = "exclude")
+    public Optional<String> exclude;
 
 }

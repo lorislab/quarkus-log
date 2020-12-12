@@ -21,6 +21,7 @@
     <modules>
         <module>log-it</module>
         <module>log-base</module>
+        <module>log-vertx</module>
     </modules>
 
     <build>
