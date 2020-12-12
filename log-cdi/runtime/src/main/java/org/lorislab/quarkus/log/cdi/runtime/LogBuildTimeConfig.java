@@ -20,6 +20,7 @@ import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Build configuration.
@@ -39,4 +40,9 @@ public class LogBuildTimeConfig {
     @ConfigItem(name = "only-public-method", defaultValue = "true")
     public boolean onlyPublicMethod = true;
 
+    /**
+     * Binding exclude classes.
+     */
+    @ConfigItem(name = "exclude")
+    public Optional<String> exclude;
 }

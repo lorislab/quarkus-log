@@ -1,4 +1,4 @@
-package org.lorislab.quarkus.log.concurrent;
+package org.lorislab.quarkus.log.cdi.common;
 
 import org.lorislab.quarkus.log.LogExclude;
 import org.lorislab.quarkus.log.LogReturnType;

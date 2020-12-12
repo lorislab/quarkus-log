@@ -16,19 +16,15 @@ import static org.lorislab.quarkus.log.vertx.web.VertxWebLogConfig.endpoint;
 @ApplicationScoped
 public class VertxWebInterceptor {
 
+    private static Logger LOGGER = LoggerFactory.getLogger(VertxWebInterceptor.class);
+
     public void filter(RoutingContext rc) {
-
-
         HttpServerRequest request = rc.request();
-//
         InterceptorContext context = new InterceptorContext(request.method().name(), request.uri());
-//        rc.put(CONTEXT, context);
-        // create the logger
-        Logger logger = LoggerFactory.getLogger(VertxWebInterceptor.class);
-        logger.info("{}", LogConfig.msg(endpoint().msgStart, new Object[]{context.method, context.parameters, request.bytesRead() > 0}));
+        LOGGER.info("{}", LogConfig.msg(endpoint().msgStart, new Object[]{context.method, context.parameters, request.bytesRead() > 0}));
         rc.addEndHandler(e -> {
             context.closeContext(rc.response().getStatusMessage());
-            logger.info("{}", LogConfig.msg(endpoint().msgSucceed,
+            LOGGER.info("{}", LogConfig.msg(endpoint().msgSucceed,
                     new Object[]{
                             context.method,
                             context.parameters,

@@ -23,9 +23,24 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.jboss:jandex:2.2.1.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.ow2.asm:asm:9.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-development-mode-spi:1.10.3.Final" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-devtools-utilities:1.10.3.Final" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-builder:1.10.3.Final" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.graalvm.sdk:graal-sdk:20.2.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-arc:1.10.3.Final" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus.arc:arc:1.10.3.Final" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: jakarta.transaction:jakarta.transaction-api:1.3.3" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.microprofile.context-propagation:microprofile-context-propagation-api:1.0.1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus.arc:arc-processor:1.10.3.Final" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: jakarta.enterprise:jakarta.enterprise.cdi-api:2.0.2" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: jakarta.el:jakarta.el-api:3.0.3" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: jakarta.interceptor:jakarta.interceptor-api:1.2.5" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.jboss.logging:jboss-logging:3.4.1.Final" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: jakarta.annotation:jakarta.annotation-api:1.3.5" level="project" />
+    <orderEntry type="module" module-name="log-cdi" />
+    <orderEntry type="module" module-name="log-api" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.quarkus:quarkus-junit5:1.10.3.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-bootstrap-core:1.10.3.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-bootstrap-app-model:1.10.3.Final" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.jboss.logging:commons-logging-jboss-logging:1.0.0.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-bootstrap-maven-resolver:1.10.3.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.maven:maven-embedder:3.6.3" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.maven:maven-settings:3.6.3" level="project" />
@@ -69,8 +84,20 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.maven.wagon:wagon-file:3.3.4" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-bootstrap-gradle-resolver:1.10.3.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.smallrye.common:smallrye-common-io:1.4.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-devtools-utilities:1.10.3.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.sisu:org.eclipse.sisu.inject:0.3.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.quarkus:quarkus-test-common:1.10.3.Final" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.quarkus:quarkus-jsonp-deployment:1.10.3.Final" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.quarkus:quarkus-jsonp:1.10.3.Final" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.glassfish:jakarta.json:1.1.6" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.jboss.logging:commons-logging-jboss-logging:1.0.0.Final" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.junit.jupiter:junit-jupiter:5.7.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.junit.jupiter:junit-jupiter-api:5.7.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.apiguardian:apiguardian-api:1.1.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.opentest4j:opentest4j:1.2.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.junit.platform:junit-platform-commons:1.7.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.junit.jupiter:junit-jupiter-params:5.7.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.junit.jupiter:junit-jupiter-engine:5.7.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.junit.platform:junit-platform-engine:1.7.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-core:1.10.3.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: jakarta.inject:jakarta.inject-api:1.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-ide-launcher:1.10.3.Final" level="project" />
@@ -88,19 +115,8 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.slf4j:slf4j-api:1.7.30" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.jboss.slf4j:slf4j-jboss-logmanager:1.1.0.Final" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-bootstrap-runner:1.10.3.Final" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-builder:1.10.3.Final" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.graalvm.sdk:graal-sdk:20.2.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus:quarkus-arc:1.10.3.Final" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus.arc:arc:1.10.3.Final" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: jakarta.transaction:jakarta.transaction-api:1.3.3" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.eclipse.microprofile.context-propagation:microprofile-context-propagation-api:1.0.1" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.quarkus.arc:arc-processor:1.10.3.Final" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: jakarta.enterprise:jakarta.enterprise.cdi-api:2.0.2" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: jakarta.el:jakarta.el-api:3.0.3" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: jakarta.interceptor:jakarta.interceptor-api:1.2.5" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.jboss.logging:jboss-logging:3.4.1.Final" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: jakarta.annotation:jakarta.annotation-api:1.3.5" level="project" />
-    <orderEntry type="module" module-name="log-cdi" />
-    <orderEntry type="module" module-name="log-api" />
+    <orderEntry type="library" scope="TEST" name="Maven: com.thoughtworks.xstream:xstream:1.4.14" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: xmlpull:xmlpull:1.1.3.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: xpp3:xpp3_min:1.1.4c" level="project" />
   </component>
 </module>

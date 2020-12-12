@@ -37,10 +37,11 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Singleton;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class LogProcessor {
 
-    private static Logger LOGGER = Logger.getLogger(LogProcessor.class);
+    private static final Logger LOGGER = Logger.getLogger(LogProcessor.class);
 
     static final String FEATURE_NAME = "cdi-log";
 
@@ -80,10 +81,16 @@ public class LogProcessor {
     private LogClassesConfigBuildItem registerLogClassesConfig(LogBuildTimeConfig buildTimeConfig, BeanArchiveIndexBuildItem combinedIndexBuildItem) {
         Map<String, LogClassRuntimeConfig> classes = new HashMap<>();
         IndexView index = combinedIndexBuildItem.getIndex();
+
+        Pattern pattern = null;
+        if (buildTimeConfig.exclude.isPresent()) {
+            System.out.println("Exclude: " + buildTimeConfig.exclude.get());
+            pattern = Pattern.compile(buildTimeConfig.exclude.get());
+        }
         for (ClassInfo ci : index.getKnownClasses()) {
             boolean tmp = checkClass(ci);
             if (tmp) {
-                readClassInfo(index, ci, buildTimeConfig, classes);
+                readClassInfo(index, ci, buildTimeConfig, classes, pattern);
             }
         }
 
@@ -93,11 +100,19 @@ public class LogProcessor {
         return new LogClassesConfigBuildItem(classes);
     }
 
-    private static void readClassInfo(IndexView index, ClassInfo ci, LogBuildTimeConfig config, Map<String, LogClassRuntimeConfig> classes) {
+    private static void readClassInfo(IndexView index, ClassInfo ci, LogBuildTimeConfig config, Map<String, LogClassRuntimeConfig> classes, Pattern pattern) {
         // check packages only if the list if defined
         if (config.packages != null && !config.packages.isEmpty()) {
             Optional<String> add = config.packages.stream().filter(x -> ci.name().toString().startsWith(x)).findFirst();
             if (add.isEmpty()) {
+                return;
+            }
+        }
+
+        // check exclude regex
+        if (pattern != null) {
+            if (pattern.matcher(ci.name().toString()).matches()) {
+                LOGGER.debug("Regex exclude class: " + ci.name().toString());
                 return;
             }
         }
@@ -117,12 +132,12 @@ public class LogProcessor {
         }
 
         // check class methods
-        boolean findMethod = findMethods(index, ci, classConfig, ci.name(), classes, config);
+        boolean findMethod = findMethods(index, ci, classConfig, ci.name(), classes, config, pattern);
         DotName superClass = ci.superName();
         DotName objectClass = DotName.createSimple(Object.class.getName());
         while (superClass != null && !objectClass.equals(superClass)) {
             ClassInfo item = index.getClassByName(superClass);
-            findMethods(index, item, classConfig, ci.name(), classes, config);
+            findMethod = findMethod || findMethods(index, item, classConfig, ci.name(), classes, config, pattern);
             superClass = item.superName();
         }
 
@@ -131,9 +146,13 @@ public class LogProcessor {
         }
     }
 
-    private static boolean findMethods(IndexView index, ClassInfo clazz, LogClassRuntimeConfig classConfig, DotName className, Map<String, LogClassRuntimeConfig> classes, LogBuildTimeConfig config) {
+    private static boolean findMethods(IndexView index, ClassInfo clazz, LogClassRuntimeConfig classConfig,
+                                       DotName className, Map<String, LogClassRuntimeConfig> classes,
+                                       LogBuildTimeConfig config, Pattern pattern) {
         boolean findMethod = false;
         for (MethodInfo method : clazz.methods()) {
+
+            String methodKey = methodKey(className, method);
             boolean check = checkMethod(method, config);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Class: " + clazz + ",method:" + method + ",interceptor:");
@@ -142,12 +161,20 @@ public class LogProcessor {
             if (!check) {
                 continue;
             }
+
+            // check exclude regex for method
+            if (pattern != null) {
+                if (pattern.matcher(methodKey).matches()) {
+                    LOGGER.debug("Regex exclude method: " + methodKey);
+                    continue;
+                }
+            }
             AnnotationInstance ano = method.annotation(LOG_SERVICE);
             if (ano != null) {
                 LogClassRuntimeConfig methodConfig = create(index, ano);
-                classes.put(methodKey(className, method), methodConfig);
+                classes.put(methodKey, methodConfig);
             } else {
-                classes.put(methodKey(className, method), classConfig);
+                classes.put(methodKey, classConfig);
             }
             findMethod = true;
         }

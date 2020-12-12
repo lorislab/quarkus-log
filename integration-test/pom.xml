@@ -43,7 +43,6 @@
                 <configuration>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                        <test.quarkus.version>${quarkus.version}</test.quarkus.version>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
