@@ -84,7 +84,7 @@ public class LogProcessor {
 
         Pattern pattern = null;
         if (buildTimeConfig.exclude.isPresent()) {
-            System.out.println("Exclude: " + buildTimeConfig.exclude.get());
+            LOGGER.debug("Exclude: " + buildTimeConfig.exclude.get());
             pattern = Pattern.compile(buildTimeConfig.exclude.get());
         }
         for (ClassInfo ci : index.getKnownClasses()) {
