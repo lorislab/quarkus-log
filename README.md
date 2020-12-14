@@ -1,6 +1,6 @@
 # quarkus-log
 
-Quarkus log extension
+Quarkus log interceptor extension
 
 [![License](https://img.shields.io/github/license/lorislab/quarkus-log?style=for-the-badge&logo=apache)](https://www.apache.org/licenses/LICENSE-2.0)
 [![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/lorislab/quarkus-log/build/master?logo=github&style=for-the-badge)](https://github.com/lorislab/quarkus-log/actions?query=workflow%3Abuild)
