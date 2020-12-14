@@ -1,5 +1,7 @@
 package org.lorislab.quarkus.log.it.rs;
 
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -12,6 +14,10 @@ public class TestRestController {
 
     @Inject
     TestService service;
+
+    @Inject
+    @RestClient
+    ClientController client;
 
     @GET
     @Path("get")
@@ -30,4 +36,17 @@ public class TestRestController {
     public Response post(@PathParam("p") String p, String body) {
         return Response.ok(service.post(p, body)).build();
     }
+
+    @GET
+    @Path("client/get")
+    public Response clientGet() {
+        return Response.fromResponse(client.get()).build();
+    }
+
+    @GET
+    @Path("client/exclude")
+    public Response clientExclude() {
+        return Response.fromResponse(client.exclude()).build();
+    }
+
 }

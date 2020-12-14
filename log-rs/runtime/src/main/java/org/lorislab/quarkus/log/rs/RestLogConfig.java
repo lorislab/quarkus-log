@@ -38,7 +38,7 @@ public class RestLogConfig {
             ENDPOINT = new ConfigItem(config.message.start, config.message.succeed, config.priority, config.exclude);
         }
         if (config.client.enabled) {
-            CLIENT = new ConfigItem(config.client.message.start, config.client.message.succeed, config.client.priority, config.exclude);
+            CLIENT = new ConfigItem(config.client.message.start, config.client.message.succeed, config.client.priority, config.client.exclude);
         }
     }
 
