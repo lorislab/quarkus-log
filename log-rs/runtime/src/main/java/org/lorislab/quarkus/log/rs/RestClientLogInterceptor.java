@@ -42,7 +42,6 @@ public class RestClientLogInterceptor implements ClientRequestFilter, ClientResp
      */
     private static final Logger log = LoggerFactory.getLogger(RestClientLogInterceptor.class);
 
-
     /**
      * {@inheritDoc }
      */
@@ -51,7 +50,11 @@ public class RestClientLogInterceptor implements ClientRequestFilter, ClientResp
         if (!client().enabled) {
             return;
         }
-        InterceptorContext context = new InterceptorContext(requestContext.getMethod(), requestContext.getUri().toString());
+        String uri = requestContext.getUri().toString();
+        if (client().exclude(uri)) {
+            return;
+        }
+        InterceptorContext context = new InterceptorContext(requestContext.getMethod(),uri);
         requestContext.setProperty(CONTEXT, context);
         log.info("{}", LogConfig.msg(client().msgStart, new Object[]{requestContext.getMethod(), requestContext.getUri(), requestContext.hasEntity()}));
     }
@@ -61,14 +64,12 @@ public class RestClientLogInterceptor implements ClientRequestFilter, ClientResp
      */
     @Override
     public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext) {
-        if (!client().enabled) {
+        InterceptorContext context = (InterceptorContext) requestContext.getProperty(CONTEXT);
+        if (context == null) {
             return;
         }
-        InterceptorContext context = (InterceptorContext) requestContext.getProperty(CONTEXT);
-        if (context != null) {
-            Response.StatusType status = responseContext.getStatusInfo();
-            context.closeContext(status.getReasonPhrase());
-            log.info("{}", LogConfig.msg(client().msgSucceed, new Object[]{context.method, requestContext.getUri(), context.time, status.getStatusCode(), context.result, responseContext.hasEntity()}));
-        }
+        Response.StatusType status = responseContext.getStatusInfo();
+        context.closeContext(status.getReasonPhrase());
+        log.info("{}", LogConfig.msg(client().msgSucceed, new Object[]{context.method, requestContext.getUri(), context.time, status.getStatusCode(), context.result, responseContext.hasEntity()}));
     }
 }

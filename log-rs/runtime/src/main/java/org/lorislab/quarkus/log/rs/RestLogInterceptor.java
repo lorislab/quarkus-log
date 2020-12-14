@@ -27,6 +27,8 @@ import javax.ws.rs.container.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
+import java.lang.reflect.Method;
+
 import static org.lorislab.quarkus.log.rs.RestLogConfig.*;
 
 /**
@@ -49,12 +51,18 @@ public class RestLogInterceptor implements ContainerRequestFilter, ContainerResp
         if (!endpoint().enabled) {
             return;
         }
-        LogService ano = LogServiceInterceptor.getLoggerServiceAno(resourceInfo.getResourceClass(), resourceInfo.getResourceClass().getName(), resourceInfo.getResourceMethod());
-        requestContext.setProperty(ANO, ano);
+        String uri = requestContext.getUriInfo().getRequestUri().toString();
+        if (endpoint().exclude(uri)) {
+            return;
+        }
+
+        Class<?> clazz = resourceInfo.getResourceClass();
+        LogService ano = LogServiceInterceptor.getLoggerServiceAno(clazz, clazz.getName(), resourceInfo.getResourceMethod());
         if (!ano.enabled()) {
             return;
         }
-        InterceptorContext context = new InterceptorContext(requestContext.getMethod(), requestContext.getUriInfo().getRequestUri().toString());
+        requestContext.setProperty(ANO, ano);
+        InterceptorContext context = new InterceptorContext(requestContext.getMethod(), uri);
         requestContext.setProperty(CONTEXT, context);
         // create the logger
         Logger logger = LoggerFactory.getLogger(resourceInfo.getResourceClass());
@@ -66,9 +74,6 @@ public class RestLogInterceptor implements ContainerRequestFilter, ContainerResp
      */
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
-        if (!endpoint().enabled) {
-            return;
-        }
         LogService ano = (LogService) requestContext.getProperty(ANO);
         if (ano == null || !ano.enabled()) {
             return;

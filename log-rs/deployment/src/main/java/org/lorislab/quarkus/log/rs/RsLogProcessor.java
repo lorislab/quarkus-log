@@ -20,6 +20,9 @@ import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
+import org.lorislab.quarkus.log.rs.runtime.RestLogBuildTimeConfig;
+import org.lorislab.quarkus.log.rs.runtime.RestLogRecorder;
+import org.lorislab.quarkus.log.rs.runtime.RestLogRuntimeTimeConfig;
 
 public class RsLogProcessor {
 
@@ -27,14 +30,8 @@ public class RsLogProcessor {
 
     @BuildStep
     @Record(ExecutionTime.RUNTIME_INIT)
-    void configureRuntimeProperties(RestLogRecorder recorder, RestLogBuildTimeConfig buildTimeConfig,
-                                    RestLogRuntimeTimeConfig logRuntimeTimeConfig) {
-        if (buildTimeConfig.enabled) {
-            recorder.endpoint(logRuntimeTimeConfig);
-        }
-        if (buildTimeConfig.clientEnabled) {
-            recorder.client(logRuntimeTimeConfig);
-        }
+    void configureRuntimeProperties(RestLogRecorder recorder, RestLogRuntimeTimeConfig logRuntimeTimeConfig) {
+        recorder.config(logRuntimeTimeConfig);
     }
 
     @BuildStep

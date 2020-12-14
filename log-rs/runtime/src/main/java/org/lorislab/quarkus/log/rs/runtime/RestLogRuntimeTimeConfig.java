@@ -13,17 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.lorislab.quarkus.log.rs;
+package org.lorislab.quarkus.log.rs.runtime;
 
 import io.quarkus.runtime.annotations.ConfigItem;
 import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
+import org.lorislab.quarkus.log.cdi.runtime.LogClassRuntimeConfig;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Build configuration.
  */
-@ConfigRoot(name = "lorislab.log.rs", phase = ConfigPhase.BUILD_TIME)
-public class RestLogBuildTimeConfig {
+@ConfigRoot(name = "lorislab.log.rs", phase = ConfigPhase.RUN_TIME)
+public class RestLogRuntimeTimeConfig {
+
+    /**
+     * Enable java types.
+     */
+    @ConfigItem(name = "priority", defaultValue = "100")
+    public int priority;
 
     /**
      * Enable java types.
@@ -32,9 +43,20 @@ public class RestLogBuildTimeConfig {
     public boolean enabled;
 
     /**
-     * Enable java types.
+     * Exclude URI regex.
      */
-    @ConfigItem(name = "client.enabled", defaultValue = "true")
-    public boolean clientEnabled;
+    @ConfigItem(name = "exclude")
+    public Optional<String> exclude;
 
+    /**
+     * Log message configuration
+     */
+    @ConfigItem(name = "message")
+    public RestLogMessageRuntimeConfig message = new RestLogMessageRuntimeConfig();
+
+    /**
+     * Log client configuration
+     */
+    @ConfigItem(name = "client")
+    public RestClientLogRuntimeTimeConfig client = new RestClientLogRuntimeTimeConfig();
 }

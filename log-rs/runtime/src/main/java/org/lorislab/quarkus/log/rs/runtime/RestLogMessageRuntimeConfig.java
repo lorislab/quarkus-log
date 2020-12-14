@@ -1,4 +1,4 @@
-package org.lorislab.quarkus.log.rs;
+package org.lorislab.quarkus.log.rs.runtime;
 
 import io.quarkus.runtime.annotations.ConfigGroup;
 import io.quarkus.runtime.annotations.ConfigItem;

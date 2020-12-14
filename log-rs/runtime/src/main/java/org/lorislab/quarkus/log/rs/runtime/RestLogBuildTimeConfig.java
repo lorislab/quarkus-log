@@ -13,21 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.lorislab.quarkus.log.rs;
+package org.lorislab.quarkus.log.rs.runtime;
 
-import io.quarkus.runtime.annotations.Recorder;
+import io.quarkus.runtime.annotations.ConfigPhase;
+import io.quarkus.runtime.annotations.ConfigRoot;
 
 /**
- * The logger builder interface.
+ * Build configuration.
  */
-@Recorder
-public class RestLogRecorder {
+@ConfigRoot(name = "lorislab.log.rs", phase = ConfigPhase.BUILD_TIME)
+public class RestLogBuildTimeConfig {
 
-    public void endpoint(RestLogRuntimeTimeConfig config) {
-        RestLogConfig.endpoint(config);
-    }
-
-    public void client(RestLogRuntimeTimeConfig config) {
-        RestLogConfig.client(config);
-    }
 }

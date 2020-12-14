@@ -28,11 +28,7 @@ public class RestLogDynamicFeature implements DynamicFeature {
 
     @Override
     public void configure(ResourceInfo resourceInfo, FeatureContext context) {
-        if (endpoint().enabled) {
-            context.register(RestLogInterceptor.class, endpoint().priority);
-        }
-        if (client().enabled) {
-            context.register(RestClientLogInterceptor.class, client().priority);
-        }
+        context.register(RestLogInterceptor.class, endpoint().priority);
+        context.register(RestClientLogInterceptor.class, client().priority);
     }
 }

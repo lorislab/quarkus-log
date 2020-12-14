@@ -137,7 +137,7 @@ public class LogConfig {
             this.msgFailed = null;
             this.msgStart = null;
             this.resultVoid = null;
-            this.classConfig = null;
+            this.classConfig = new HashMap<>();
         }
 
         ConfigItem(String msgStart, String msgSucceed, String msgFailed, String resultVoid, Map<String, LogClassRuntimeConfig> classConfig, Map<String, LogClassRuntimeConfig> classes) {

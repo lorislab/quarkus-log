@@ -1,6 +1,14 @@
 package org.lorislab.quarkus.log.rs;
 
+import org.lorislab.quarkus.log.cdi.runtime.LogClassRuntimeConfig;
+import org.lorislab.quarkus.log.rs.runtime.RestLogRuntimeTimeConfig;
+import org.lorislab.quarkus.log.rs.runtime.RestResourceRuntimeConfig;
+
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class RestLogConfig {
 
@@ -25,11 +33,13 @@ public class RestLogConfig {
         // empty constructor
     }
 
-    public static void endpoint(RestLogRuntimeTimeConfig config) {
-        ENDPOINT = new ConfigItem(config.message.start, config.message.succeed, config.priority);
-    }
-    public static void client(RestLogRuntimeTimeConfig config) {
-        CLIENT = new ConfigItem(config.client.message.start, config.client.message.succeed, config.client.priority);
+    public static void config(RestLogRuntimeTimeConfig config) {
+        if (config.enabled) {
+            ENDPOINT = new ConfigItem(config.message.start, config.message.succeed, config.priority, config.exclude);
+        }
+        if (config.client.enabled) {
+            CLIENT = new ConfigItem(config.client.message.start, config.client.message.succeed, config.client.priority, config.exclude);
+        }
     }
 
     public static ConfigItem endpoint() {
@@ -41,6 +51,7 @@ public class RestLogConfig {
     }
 
     public static final class ConfigItem {
+
         /**
          * The message start.
          */
@@ -51,22 +62,50 @@ public class RestLogConfig {
          */
         public final MessageFormat msgSucceed;
 
+        /**
+         * Disable or enable interceptor.
+         */
         public final boolean enabled;
 
+        /**
+         * The interceptor priority.
+         */
         public final int priority;
+
+        /**
+         * Exclude regex.
+         */
+        public final Pattern exclude;
+
+        /**
+         * Class configuration.
+         */
+        final Map<String, RestResourceRuntimeConfig> resources;
 
         ConfigItem() {
             this.enabled = false;
             this.priority = 100;
             this.msgSucceed = null;
             this.msgStart = null;
+            this.exclude = null;
+            this.resources = null;
         }
 
-        ConfigItem(String msgStart, String msgSucceed, int priority) {
+        ConfigItem(String msgStart, String msgSucceed, int priority, Optional<String> exclude) {
             this.enabled = true;
             this.priority = priority;
             this.msgSucceed = new MessageFormat(msgSucceed);
             this.msgStart = new MessageFormat(msgStart);
+            this.exclude = exclude.map(Pattern::compile).orElse(null);
+            this.resources = new HashMap<>();
         }
+
+        public boolean exclude(String uri) {
+            if (exclude == null) {
+                return false;
+            }
+            return exclude.matcher(uri).matches();
+        }
+
     }
 }
