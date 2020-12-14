@@ -20,7 +20,6 @@ import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
-import org.lorislab.quarkus.log.rs.runtime.RestLogBuildTimeConfig;
 import org.lorislab.quarkus.log.rs.runtime.RestLogRecorder;
 import org.lorislab.quarkus.log.rs.runtime.RestLogRuntimeTimeConfig;
 
