@@ -4,7 +4,7 @@ on:
     tags:
       - '**'
 env:
-  MAVEN_CLI_OPTS: "-s .github/m2/settings.xml --batch-mode"
+  MAVEN_CLI_OPTS: "-s .github/m2/settings.xml --batch-mode -DskipTests"
   GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
   OOSRH_USERNAME: ${{ secrets.OOSRH_USERNAME }}
   OOSRH_PASSWORD: ${{ secrets.OOSRH_PASSWORD }}
