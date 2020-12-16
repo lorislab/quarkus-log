@@ -1,4 +1,4 @@
-package org.lorislab.quarkus.log;
+package org.lorislab.quarkus.log.cdi;
 
 import java.util.Collections;
 import java.util.List;

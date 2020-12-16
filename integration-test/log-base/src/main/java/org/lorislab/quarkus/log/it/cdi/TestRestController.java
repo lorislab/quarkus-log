@@ -44,4 +44,16 @@ public class TestRestController {
     public Response param1(@PathParam("p") String p) {
         return Response.ok(service.param1(p)).build();
     }
+
+    @GET
+    @Path("static/{p}")
+    public Response staticMethod(@PathParam("p") String p) {
+        return Response.ok(TestService.staticMethod(p)).build();
+    }
+
+    @GET
+    @Path("static2/{p}")
+    public Response staticMethod2(@PathParam("p") String p) {
+        return Response.ok(TestStaticService.staticMethod(p)).build();
+    }
 }

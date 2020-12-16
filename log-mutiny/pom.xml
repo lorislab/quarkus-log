@@ -21,7 +21,7 @@
         </dependency>
         <dependency>
             <groupId>org.lorislab.quarkus</groupId>
-            <artifactId>log-api</artifactId>
+            <artifactId>log-cdi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

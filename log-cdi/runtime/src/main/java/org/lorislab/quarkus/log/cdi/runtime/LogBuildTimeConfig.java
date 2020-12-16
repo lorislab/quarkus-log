@@ -41,6 +41,12 @@ public class LogBuildTimeConfig {
     public boolean onlyPublicMethod = true;
 
     /**
+     * Check only public methods
+     */
+    @ConfigItem(name = "static-method", defaultValue = "true")
+    public boolean staticMethod = true;
+
+    /**
      * Binding exclude classes.
      */
     @ConfigItem(name = "exclude")

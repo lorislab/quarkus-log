@@ -1,10 +1,10 @@
 package org.lorislab.quarkus.log.it.cdi;
 
-import org.lorislab.quarkus.log.LogParamValue;
+import org.lorislab.quarkus.log.cdi.LogParamValue;
 
 import javax.enterprise.inject.Produces;
 
-import static org.lorislab.quarkus.log.LogParamValue.assignable;
+import static org.lorislab.quarkus.log.cdi.LogParamValue.assignable;
 
 public class LogConfig {
 

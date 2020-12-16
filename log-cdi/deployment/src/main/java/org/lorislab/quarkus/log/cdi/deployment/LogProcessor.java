@@ -28,7 +28,7 @@ import io.quarkus.deployment.builditem.CapabilityBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import org.jboss.jandex.*;
 import org.jboss.logging.Logger;
-import org.lorislab.quarkus.log.LogExclude;
+import org.lorislab.quarkus.log.cdi.LogExclude;
 import org.lorislab.quarkus.log.cdi.LogService;
 import org.lorislab.quarkus.log.cdi.runtime.*;
 
@@ -239,9 +239,19 @@ public class LogProcessor {
     }
 
     private static boolean checkMethod(MethodInfo method, LogBuildTimeConfig config) {
-        // ignore static method
-        if (Modifier.isStatic(method.flags())) {
+        // skip other check for @LogService annotation
+        if (method.annotation(LOG_SERVICE) != null) {
+            return true;
+        }
+        // skip method which contains @LogExclude
+        if (method.annotation(EXCLUDE) != null) {
             return false;
+        }
+        // ignore static method
+        if (!config.staticMethod) {
+            if (Modifier.isStatic(method.flags())) {
+                return false;
+            }
         }
         // skip constructor
         if ("<init>".equals(method.name())) {
@@ -252,10 +262,6 @@ public class LogProcessor {
             if (!Modifier.isPublic(method.flags())){
                 return false;
             }
-        }
-        // skip method which contains @LogExclude
-        if (method.annotation(EXCLUDE) != null) {
-            return false;
         }
         return true;
     }

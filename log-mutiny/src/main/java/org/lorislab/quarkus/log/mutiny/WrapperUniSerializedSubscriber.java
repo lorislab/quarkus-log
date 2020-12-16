@@ -4,11 +4,11 @@ import io.smallrye.mutiny.operators.UniSerializedSubscriber;
 import io.smallrye.mutiny.subscription.UniSubscriber;
 import io.smallrye.mutiny.subscription.UniSubscription;
 
-public class WrapperSubscriber<T> implements UniSubscriber<T>, UniSubscription  {
+public class WrapperUniSerializedSubscriber<T> implements UniSubscriber<T>, UniSubscription  {
 
     UniSerializedSubscriber<T> delegate;
 
-    public WrapperSubscriber(UniSerializedSubscriber<T> delegate) {
+    public WrapperUniSerializedSubscriber(UniSerializedSubscriber<T> delegate) {
         this.delegate = delegate;
     }
 

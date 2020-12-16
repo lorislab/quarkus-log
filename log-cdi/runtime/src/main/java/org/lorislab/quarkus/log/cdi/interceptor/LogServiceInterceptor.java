@@ -15,8 +15,8 @@
  */
 package org.lorislab.quarkus.log.cdi.interceptor;
 
-import org.lorislab.quarkus.log.LogReplaceValue;
-import org.lorislab.quarkus.log.ReturnContext;
+import org.lorislab.quarkus.log.cdi.LogReplaceValue;
+import org.lorislab.quarkus.log.cdi.ReturnContext;
 import org.lorislab.quarkus.log.cdi.LogService;
 import org.lorislab.quarkus.log.cdi.runtime.LogClassRuntimeConfig;
 import org.slf4j.Logger;
@@ -64,9 +64,10 @@ public class LogServiceInterceptor {
         }
 
         Method method = ic.getMethod();
-        String className = getObjectClassName(ic.getTarget());
+        Class<?> clazz = getObjectClass(ic.getTarget(), method.getDeclaringClass());
+        String className = getClassName(clazz);
 
-        LogService ano = getLoggerServiceAno(ic.getTarget().getClass(), className, method);
+        LogService ano = getLoggerServiceAno(clazz, className, method);
         if (!ano.enabled()) {
             return ic.proceed();
         }
@@ -135,19 +136,22 @@ public class LogServiceInterceptor {
     }
 
     /**
-     * Gets the service class name.
+     * Gets the service class.
      *
      * @param object the target class.
      * @return the corresponding class name.
      */
-    private static String getObjectClassName(Object object) {
-        if (object instanceof Proxy) {
-            Class<?>[] clazz = object.getClass().getInterfaces();
-            if (clazz.length > 0) {
-                return getClassName(clazz[0]);
+    private static Class<?> getObjectClass(Object object, Class<?> methodClass) {
+        if (object != null) {
+            if (object instanceof Proxy) {
+                Class<?>[] clazz = object.getClass().getInterfaces();
+                if (clazz.length > 0) {
+                    return clazz[0];
+                }
             }
+            return object.getClass();
         }
-        return getClassName(object.getClass());
+        return methodClass;
     }
 
     /**

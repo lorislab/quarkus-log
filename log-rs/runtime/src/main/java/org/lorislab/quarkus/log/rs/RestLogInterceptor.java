@@ -15,7 +15,7 @@
  */
 package org.lorislab.quarkus.log.rs;
 
-import org.lorislab.quarkus.log.LogExclude;
+import org.lorislab.quarkus.log.cdi.LogExclude;
 import org.lorislab.quarkus.log.cdi.interceptor.InterceptorContext;
 import org.lorislab.quarkus.log.cdi.LogService;
 import org.lorislab.quarkus.log.cdi.interceptor.LogConfig;
@@ -26,8 +26,6 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.container.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-
-import java.lang.reflect.Method;
 
 import static org.lorislab.quarkus.log.rs.RestLogConfig.*;
 

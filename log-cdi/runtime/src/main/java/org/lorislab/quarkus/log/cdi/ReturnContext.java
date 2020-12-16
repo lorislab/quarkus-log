@@ -1,4 +1,4 @@
-package org.lorislab.quarkus.log;
+package org.lorislab.quarkus.log.cdi;
 
 public interface ReturnContext {
 

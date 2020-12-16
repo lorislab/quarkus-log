@@ -15,10 +15,10 @@
  */
 package org.lorislab.quarkus.log.cdi.interceptor;
 
-import org.lorislab.quarkus.log.LogExclude;
-import org.lorislab.quarkus.log.LogParamValue;
-import org.lorislab.quarkus.log.LogReturnType;
-import org.lorislab.quarkus.log.ReturnContext;
+import org.lorislab.quarkus.log.cdi.LogExclude;
+import org.lorislab.quarkus.log.cdi.LogParamValue;
+import org.lorislab.quarkus.log.cdi.LogReturnType;
+import org.lorislab.quarkus.log.cdi.ReturnContext;
 
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;

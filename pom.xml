@@ -41,7 +41,6 @@
     </developers>
 
     <modules>
-        <module>log-api</module>
         <module>log-mutiny</module>
         <module>log-cdi</module>
         <module>log-vertx-web</module>

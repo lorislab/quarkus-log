@@ -67,4 +67,32 @@ public class BaseLoggerTest extends AbstractTest {
         Assertions.assertTrue(data[1].endsWith("s] succeed."));
         Assertions.assertTrue(data[1].contains(") param1(p1):p1X ["));
     }
+
+    @Test
+    public void staticMethodTest() {
+        given()
+                .when().get("/test/static/param1")
+                .then()
+                .statusCode(200)
+                .body(is("STATIC"));
+
+        String[] data = logLines();
+        Assertions.assertEquals(2, data.length);
+        Assertions.assertTrue(data[0].endsWith(") staticMethod(param1) started."));
+        Assertions.assertTrue(data[1].endsWith("s] succeed."));
+        Assertions.assertTrue(data[1].contains(") staticMethod(param1):STATIC ["));
+    }
+
+    @Test
+    public void staticClassMethodTest() {
+        given()
+                .when().get("/test/static2/param1")
+                .then()
+                .statusCode(200)
+                .body(is("STATIC"));
+
+        String[] data = logLines();
+        Assertions.assertEquals(1, data.length);
+        Assertions.assertEquals("", data[0]);
+    }
 }

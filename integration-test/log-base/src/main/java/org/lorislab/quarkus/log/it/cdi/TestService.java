@@ -19,4 +19,8 @@ public class TestService {
     public String param1(String param) {
         return param + "X";
     }
+
+    public static String staticMethod(String param1) {
+        return "STATIC";
+    }
 }

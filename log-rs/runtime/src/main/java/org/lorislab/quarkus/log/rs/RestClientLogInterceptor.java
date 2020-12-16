@@ -15,7 +15,7 @@
  */
 package org.lorislab.quarkus.log.rs;
 
-import org.lorislab.quarkus.log.LogExclude;
+import org.lorislab.quarkus.log.cdi.LogExclude;
 import org.lorislab.quarkus.log.cdi.interceptor.InterceptorContext;
 import org.lorislab.quarkus.log.cdi.interceptor.LogConfig;
 import org.slf4j.Logger;

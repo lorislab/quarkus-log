@@ -5,9 +5,9 @@ import io.smallrye.mutiny.operators.AbstractUni;
 import io.smallrye.mutiny.operators.UniSerializedSubscriber;
 import org.eclipse.microprofile.context.ThreadContext;
 import org.eclipse.microprofile.context.spi.ContextManagerProvider;
-import org.lorislab.quarkus.log.LogExclude;
-import org.lorislab.quarkus.log.LogReturnType;
-import org.lorislab.quarkus.log.ReturnContext;
+import org.lorislab.quarkus.log.cdi.LogExclude;
+import org.lorislab.quarkus.log.cdi.LogReturnType;
+import org.lorislab.quarkus.log.cdi.ReturnContext;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.List;
@@ -31,19 +31,20 @@ public class UniLogReturnType implements LogReturnType {
         return (c, v) -> {
             Executor executor = THREAD_CONTEXT.currentContextExecutor();
             return new AbstractUni<>() {
+
                 @Override
                 protected void subscribing(UniSerializedSubscriber<? super Object> subscriber) {
-                    WrapperSubscriber<Object> wrapper = new WrapperSubscriber<Object>(subscriber) {
+                    WrapperUniSerializedSubscriber<Object> wrapper = new WrapperUniSerializedSubscriber<Object>(subscriber) {
                         @Override
                         public void onItem(Object item) {
-                            super.onItem(item);
                             c.closeContext(item);
+                            super.onItem(item);
                         }
 
                         @Override
                         public void onFailure(Throwable failure) {
-                            super.onFailure(failure);
                             c.errorContext(failure);
+                            super.onFailure(failure);
                         }
                     };
                     executor.execute(() -> AbstractUni.subscribe((Uni<?>) v, wrapper));
