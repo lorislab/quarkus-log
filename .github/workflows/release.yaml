@@ -4,7 +4,6 @@ on:
     tags:
       - '**'
 env:
-  MAVEN_CLI_OPTS: "-s .github/m2/settings.xml --batch-mode -DskipTests"
   GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
   OOSRH_USERNAME: ${{ secrets.OOSRH_USERNAME }}
   OOSRH_PASSWORD: ${{ secrets.OOSRH_PASSWORD }}
@@ -18,9 +17,12 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
+          server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
+          server-username: OOSRH_USERNAME # env variable for username in deploy
+          server-password: OOSRH_PASSWORD # env variable for token in deploy
+          gpg-private-key: ${{ secrets.GPG_KEY_SECRET }} # Value of the GPG private key to import
+          gpg-passphrase: GPG_PASSPHRASE # env variable for GPG private key passphrase
       - name: Set the release version
         run: mvn semver-release:version-release
-      - name: Install GPG key
-        run: echo -e "${{ secrets.GPG_KEY_SECRET }}" | gpg --batch --import --passphrase "$GPG_PASSPHRASE"
       - name: Deploy release
-        run: mvn $MAVEN_CLI_OPTS deploy -Prelease
+        run: mvn deploy -DskipTests -Prelease
