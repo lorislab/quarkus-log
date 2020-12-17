@@ -1,0 +1,18 @@
+version: 2
+updates:
+  - package-ecosystem: maven
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "23:00"
+      timezone: Europe/Paris
+    open-pull-requests-limit: 3
+    labels:
+      - area/dependencies
+    allow:
+      #Quarkus
+      - dependency-name: io.quarkus:quarkus-bom
+      #Maven
+      - dependency-name: org.lorislab.maven:semver-release-maven-plugin
+      - dependency-name: org.jboss.jandex:jandex-maven-plugin
+    rebase-strategy: disabled

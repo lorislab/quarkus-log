@@ -44,7 +44,7 @@
         <module>log-mutiny</module>
         <module>log-cdi</module>
         <module>log-vertx-web</module>
-        <module>log-rs</module>
+        <module>log-resteasy</module>
         <module>integration-test</module>
     </modules>
 
