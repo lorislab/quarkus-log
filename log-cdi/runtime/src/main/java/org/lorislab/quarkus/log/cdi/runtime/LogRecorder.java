@@ -17,9 +17,13 @@ package org.lorislab.quarkus.log.cdi.runtime;
 
 import io.quarkus.arc.runtime.BeanContainer;
 import io.quarkus.runtime.annotations.Recorder;
+import org.jboss.logging.Logger;
+import org.lorislab.quarkus.log.cdi.interceptor.LogConfig;
 import org.lorislab.quarkus.log.cdi.interceptor.LogParamValueService;
 
 import javax.enterprise.inject.Default;
+import java.text.MessageFormat;
+import java.util.Map;
 
 /**
  * The logger builder interface.
@@ -27,9 +31,15 @@ import javax.enterprise.inject.Default;
 @Recorder
 public class LogRecorder {
 
-    public void init(BeanContainer container) {
-        LogParamValueService service = container.instance(LogParamValueService.class, Default.Literal.INSTANCE);
-        service.init();
-    }
+    private static Logger LOGGER = Logger.getLogger(LogRecorder.class);
 
+    public void init(BeanContainer container, LogRuntimeTimeConfig config, Map<String, LogClassRuntimeConfig> classes) {
+        if (!config.enabled) {
+            LOGGER.info("Lorislab logger interceptor is disabled");
+            return;
+        }
+        LogConfig.config(config, classes);
+        LogParamValueService logParamValueService = container.instance(LogParamValueService.class, Default.Literal.INSTANCE);
+        logParamValueService.init();
+    }
 }

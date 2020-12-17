@@ -41,33 +41,37 @@
     </developers>
 
     <modules>
+        <module>log-mutiny</module>
         <module>log-cdi</module>
-        <module>log-rs</module>
+        <module>log-vertx-web</module>
+        <module>log-resteasy</module>
+        <module>integration-test</module>
     </modules>
 
     <properties>
-        <quarkus.version>1.5.0.CR1</quarkus.version>
+        <quarkus.version>1.10.3.Final</quarkus.version>
+        <version.surefire.plugin>3.0.0-M5</version.surefire.plugin>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <surefire-plugin.version>2.22.1</surefire-plugin.version>
+        <skip.surefire.tests>false</skip.surefire.tests>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>io.quarkus</groupId>
-                <artifactId>quarkus-bom-deployment</artifactId>
+                <artifactId>quarkus-bom</artifactId>
                 <version>${quarkus.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>io.quarkus</groupId>
-                <artifactId>quarkus-bom</artifactId>
-                <version>${quarkus.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.10</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -117,7 +121,7 @@
                 <plugin>
                     <groupId>org.jboss.jandex</groupId>
                     <artifactId>jandex-maven-plugin</artifactId>
-                    <version>1.0.7</version>
+                    <version>1.0.8</version>
                     <executions>
                         <execution>
                             <id>make-index</id>

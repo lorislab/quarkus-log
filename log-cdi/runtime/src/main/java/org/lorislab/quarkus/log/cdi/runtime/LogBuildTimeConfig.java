@@ -16,21 +16,17 @@
 package org.lorislab.quarkus.log.cdi.runtime;
 
 import io.quarkus.runtime.annotations.ConfigItem;
+import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Build configuration.
  */
-@ConfigRoot(name = "lorislab.log")
+@ConfigRoot(name = "lorislab.log", phase = ConfigPhase.BUILD_TIME)
 public class LogBuildTimeConfig {
-
-    /**
-     * Enable java types.
-     */
-    @ConfigItem(name = "disable", defaultValue = "false")
-    public boolean disable;
 
     /**
      * Binding includes packages.
@@ -38,4 +34,21 @@ public class LogBuildTimeConfig {
     @ConfigItem(name = "packages", defaultValue = "org.lorislab")
     public List<String> packages;
 
+    /**
+     * Check only public methods
+     */
+    @ConfigItem(name = "only-public-method", defaultValue = "true")
+    public boolean onlyPublicMethod = true;
+
+    /**
+     * Check only public methods
+     */
+    @ConfigItem(name = "static-method", defaultValue = "true")
+    public boolean staticMethod = true;
+
+    /**
+     * Binding exclude classes.
+     */
+    @ConfigItem(name = "exclude")
+    public Optional<String> exclude;
 }

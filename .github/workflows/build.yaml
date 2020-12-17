@@ -15,9 +15,15 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
+      - name: setup-graalvm-ce
+        uses: rinx/setup-graalvm-ce@v0.0.5
         with:
-          java-version: 11
-      - name: Build project
-        run: mvn clean package
+          graalvm-version: "20.2.0"
+          java-version: "java11"
+          native-image: "true"
+      - name: Build & Unit tests
+        run: mvn --batch-mode clean package
+      - name: Native build
+        run: mvn --batch-mode package -DskipTests -Dnative
+      - name: Integration tests
+        run: mvn --batch-mode package -Dskip.surefire.tests=true failsafe:integration-test failsafe:verify

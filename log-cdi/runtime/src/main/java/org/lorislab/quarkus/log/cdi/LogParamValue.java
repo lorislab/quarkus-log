@@ -1,44 +1,83 @@
-/*
- * Copyright 2020 lorislab.org.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.lorislab.quarkus.log.cdi;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
 public interface LogParamValue {
 
-    List<Item> getAssignableFrom();
-
-    List<Item> getClasses();
-
-    default Item item(int priority, Class<?> clazz, Function<Object, String> fn) {
-        Item item = new Item();
-        item.clazz = clazz;
-        item.priority = priority;
-        item.fn = fn;
-        return item;
+    /**
+     * The list of classes for which is this mapping method.
+     *
+     * @return the list of classes for which is this mapping method.
+     */
+    default List<Class<?>> classes()  {
+        return Collections.emptyList();
     }
 
-    class Item {
+    /**
+     * The list of  assignable classes for which is this mapping method.
+     *
+     * @return the list of  assignable classes for which is this mapping method.
+     */
+    default List<Class<?>> assignableClasses()  {
+        return Collections.emptyList();
+    }
 
-        public Class<?> clazz;
+    /**
+     * The priority of this method.
+     *
+     * @return the priority of this method.
+     */
+    default int priority() { return 0; }
 
-        public Function<Object, String> fn;
+    Function<Object, String> function();
 
-        public int priority;
+    static LogParamValue assignable(Function<Object, String> fun, Class<?> ... clazz) {
+        return assignable(fun, 0, clazz);
+    }
 
+    static LogParamValue assignable(Function<Object, String> fun, int priority, Class<?> ... clazz) {
+        return new LogParamValue() {
+            @Override
+            public List<Class<?>> assignableClasses() {
+                return Arrays.asList(clazz);
+            }
+
+            @Override
+            public Function<Object, String> function() {
+                return fun;
+            }
+
+            @Override
+            public int priority() {
+                return priority;
+            }
+        };
+    }
+
+    static LogParamValue instanceOf(Function<Object, String> fun, Class<?> ... clazz) {
+        return instanceOf(fun, 0, clazz);
+    }
+
+    static LogParamValue instanceOf(Function<Object, String> fun, int priority, Class<?> ... clazz) {
+        return new LogParamValue() {
+            @Override
+            public List<Class<?>> classes() {
+                return Arrays.asList(clazz);
+            }
+
+            @Override
+            public Function<Object, String> function() {
+                return fun;
+            }
+
+            @Override
+            public int priority() {
+                return priority;
+            }
+        };
     }
 }
+
