@@ -22,8 +22,8 @@ jobs:
           java-version: "java11"
           native-image: "true"
       - name: Build & Unit tests
-        run: mvn clean package
+        run: mvn --batch-mode clean package
       - name: Native build
-        run: mvn package -DskipTests -Dnative
+        run: mvn --batch-mode package -DskipTests -Dnative
       - name: Integration tests
-        run: mvn package -Dskip.surefire.tests=true failsafe:integration-test failsafe:verify
+        run: mvn --batch-mode package -Dskip.surefire.tests=true failsafe:integration-test failsafe:verify
