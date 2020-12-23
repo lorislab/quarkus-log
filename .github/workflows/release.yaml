@@ -26,3 +26,9 @@ jobs:
         run: mvn semver-release:version-release
       - name: Deploy release
         run: mvn deploy -DskipTests -Prelease
+      - name: Create release
+        uses: lorislab/changelog-action@v1
+        with:
+          args: generate --create-release --close-version --file .github/changelog.yaml
+        env:
+          CHANGELOG_TOKEN: ${{ secrets.GITHUB_TOKEN }}
