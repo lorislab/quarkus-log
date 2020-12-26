@@ -12,29 +12,38 @@ Add maven dependency
 <dependency>
     <groupId>org.lorislab.quarkus</groupId>
     <artifactId>log-cdi</artifactId>
-    <version>0.1.0</version>
+    <version>{latest-release-version}</version>
 </dependency>
 ```
 The standard log method for each parameter is the `toString()` Java method.
-You can overwrite this and define a static Java method with annotation `@LogParam`. 
+You can overwrite this and define a producer method which returns `LogParamValue` with annotation `@Produces`. 
 ```java
-    @LogParam(classes = {Transaction.class}, priority = 100)
-    public static String logMessage(Object message) {
-        return "~t~";
-    }
-
-    @LogParam(assignableFrom = {RoutingContext.class})
-    public static String logRoutingContext(Object message) {
-        RoutingContext r = (RoutingContext) message;
-        return r.normalisedPath();
+    @Produces
+    public LogParamValue model() {
+       return assignable((v) -> "model:" + ((Model)v).param, Model.class);
     }
 ```
-#### Create a release
-```bash
-mvn semver-release:release-create
+For `mutiny` add maven dependency
+```xml
+<dependency>
+    <groupId>org.lorislab.quarkus</groupId>
+    <artifactId>log-mutiny</artifactId>
+    <version>{latest-release-version}</version>
+</dependency>
 ```
-
-### Create a patch branch
-```bash
-mvn semver-release:patch-create -DpatchVersion=x.x.0
+For `resteasy` add maven dependency
+```xml
+<dependency>
+    <groupId>org.lorislab.quarkus</groupId>
+    <artifactId>log-resteasy</artifactId>
+    <version>{latest-release-version}</version>
+</dependency>
+```
+For `vertx-web` add maven dependency
+```xml
+<dependency>
+    <groupId>org.lorislab.quarkus</groupId>
+    <artifactId>log-vertx-web</artifactId>
+    <version>{latest-release-version}</version>
+</dependency>
 ```
