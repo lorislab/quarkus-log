@@ -8,7 +8,7 @@ updates:
       timezone: Europe/Paris
     open-pull-requests-limit: 3
     labels:
-      - area/dependencies
+      - dependencies
     allow:
       #Quarkus
       - dependency-name: io.quarkus:quarkus-bom
