@@ -41,7 +41,7 @@ public class LogBuildTimeConfig {
     public boolean onlyPublicMethod = true;
 
     /**
-     * Check only public methods
+     * Check static method of the bean class.
      */
     @ConfigItem(name = "static-method", defaultValue = "true")
     public boolean staticMethod = true;
